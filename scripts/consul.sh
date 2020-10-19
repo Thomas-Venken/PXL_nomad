@@ -17,3 +17,4 @@ bind_addr = \"192.168.2.15\"
 
 
 " >> /etc/consul.d/consul.hcl
+sudo systemctl start consul.service
