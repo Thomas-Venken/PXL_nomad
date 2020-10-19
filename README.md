@@ -1,5 +1,5 @@
 # Groep 5 - Nomad & consul
-
+##Installatie en Configuratie
 Als je het volgende commando geeft, dan starten er drie Virtual Machine's op.
 
 ```bash
@@ -18,27 +18,30 @@ Deze server en clients worden aan de hand van de volgende vagrant file opgestart
 VAGRANTFILE_API_VERSION = "2"
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
-
   config.vm.define "server" do |subconfig|
     subconfig.vm.box = "centos/7"
     subconfig.vm.hostname = "server"
-	  subconfig.vm.network "private_network", ip: "192.168.0.15"
+	  subconfig.vm.network "private_network", ip: "192.168.2.15"
     subconfig.vm.provision "shell", path: "scripts/server.sh"
+	  subconfig.vm.network "forwarded_port", guest: 4646, host: 4646, auto_correct: true, host_ip: "127.0.0.1"
+	  subconfig.vm.provision "shell", inline: "screen -S nomad  -dm sudo nomad  agent -config /etc/nomad.d/server.hcl"
     subconfig.vm.provision "shell", path: "scripts/webserver.sh"
   end
 
   config.vm.define "client1" do |subconfig|
     subconfig.vm.box = "centos/7"
     subconfig.vm.hostname = "client1"
-	  subconfig.vm.network "private_network", ip: "192.168.0.16"
+	  subconfig.vm.network "private_network", ip: "192.168.2.16"
     subconfig.vm.provision "shell", path: "scripts/client1.sh"
+	  subconfig.vm.provision "shell", inline: "screen -S nomad  -dm sudo nomad  agent -config /etc/nomad.d/client1.hcl"
   end
 
   config.vm.define "client2" do |subconfig|
     subconfig.vm.box = "centos/7"
     subconfig.vm.hostname = "client2"
-	  subconfig.vm.network "private_network", ip: "192.168.0.17"
+	  subconfig.vm.network "private_network", ip: "192.168.2.17"
     subconfig.vm.provision "shell", path: "scripts/client2.sh"
+	  subconfig.vm.provision "shell", inline: "screen -S nomad  -dm sudo nomad  agent -config /etc/nomad.d/client2.hcl"
   end
 
   config.vm.provider :virtualbox do |virtualbox, override|
@@ -50,6 +53,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   end
 
   config.vm.provision "shell", path: "scripts/install.sh"
+
 end
 ```
 Per VM wordt er het install.sh script gerunt. Deze installeert:
@@ -67,7 +71,7 @@ sudo mkdir /opt/nomad/server > /dev/null 2>&1
 sudo echo "# Increase log verbosity
 log_level = \"DEBUG\"
 # Set server ip
-bind_addr = \"192.168.0.15\"
+bind_addr = \"192.168.2.15\"
 
 # Setup data dir
 data_dir = \"/opt/nomad/server\"
@@ -101,7 +105,7 @@ client {
     # For demo assume we are talking to server1. For production,
     # this should be like "nomad.service.consul:4647" and a system
     # like Consul used for service discovery.
-    servers = [\"192.168.0.15:4647\"]
+    servers = [\"192.168.2.15:4647\"]
 	network_interface=\"eth1\"
 }
 
@@ -122,3 +126,5 @@ plugin \"docker\" {
 }" > /etc/nomad.d/clientX.hcl
 ```
 De 'X' in het bovenstaande script staat voor het nummer van de client.
+##Verdeling van taken
+...
