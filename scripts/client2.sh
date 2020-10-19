@@ -35,5 +35,3 @@ plugin \"docker\" {
     }
   }
 }" > /etc/nomad.d/client2.hcl
-#sudo nomad agent -config /etc/nomad.d/client2.hcl
-

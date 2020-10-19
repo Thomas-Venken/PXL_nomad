@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 sudo mkdir /opt/nomad/server > /dev/null 2>&1
 sudo echo "# Increase log verbosity
 log_level = \"DEBUG\"
@@ -17,4 +16,3 @@ server {
     # Self-elect, should be 3 or 5 for production
     bootstrap_expect = 1
 }" >  /etc/nomad.d/server.hcl
-#sudo nomad agent -config /etc/nomad.d/server.hcl
