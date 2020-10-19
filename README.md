@@ -1,4 +1,5 @@
 # Groep 5 - Nomad & consul
+
 ##Installatie en Configuratie
 Als je het volgende commando geeft, dan starten er drie Virtual Machine's op.
 
@@ -126,5 +127,6 @@ plugin \"docker\" {
 }" > /etc/nomad.d/clientX.hcl
 ```
 De 'X' in het bovenstaande script staat voor het nummer van de client.
+
 ##Verdeling van taken
 ...
