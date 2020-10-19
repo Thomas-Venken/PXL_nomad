@@ -64,10 +64,11 @@ De Vagrantfile behandelt de volgende delen:
 * Opstarten van de interface voor Nomad.
 
 Per VM wordt er het install.sh script gerunt. Deze installeert:
+* Eventuele Linux updates
 * Docker
 * Nomad
 * Consul
-* Eventuele Linux updates
+* Screen
 
 ```bash
 #!/bin/bash
@@ -84,8 +85,8 @@ sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashi
 sudo yum -y install docker
 sudo yum -y install nomad
 sudo yum -y install consul
-sudo systemctl enable docker
 sudo yum -y install screen
+sudo systemctl enable docker
 ```
 Wanneer deze dan zijn geinstalleerd, dan wordt vervolgens per VM een individueel script gerunt. Hierin wordt dan de server/client in geconfigureerd.
 
