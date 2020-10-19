@@ -16,3 +16,5 @@ server {
     # Self-elect, should be 3 or 5 for production
     bootstrap_expect = 1
 }" >  /etc/nomad.d/server.hcl
+sudo rm -f /etc/nomad.d/nomad.hcl
+sudo systemctl start nomad.service

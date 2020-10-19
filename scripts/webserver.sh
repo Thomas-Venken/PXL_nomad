@@ -36,4 +36,4 @@ job \"webserver\" {
     }
   }
 }" > /opt/nomad/webserver.nomad
-sudo nomad job run /opt/nomad/webserver.nomad
+

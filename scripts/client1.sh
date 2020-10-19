@@ -17,7 +17,7 @@ client {
     enabled = true
 
     # For demo assume we are talking to server1. For production,
-    # this should be like "nomad.service.consul:4647" and a system
+    # this should be like \"nomad.service.consul:4647\" and a system
     # like Consul used for service discovery.
     servers = [\"192.168.2.15:4647\"]
 	network_interface=\"eth1\"
@@ -38,3 +38,5 @@ plugin \"docker\" {
     }
   }
 }" > /etc/nomad.d/client1.hcl
+sudo rm -f /etc/nomad.d/nomad.hcl
+sudo systemctl start nomad.service
