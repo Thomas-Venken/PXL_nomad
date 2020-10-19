@@ -13,3 +13,4 @@ sudo yum -y install docker
 sudo yum -y install nomad
 sudo yum -y install consul
 sudo systemctl enable docker
+sudo systemctl start docker
