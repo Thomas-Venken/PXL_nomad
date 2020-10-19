@@ -10,6 +10,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     subconfig.vm.provision "shell", path: "scripts/server.sh"
 	subconfig.vm.network "forwarded_port", guest: 4646, host: 4646, auto_correct: true, host_ip: "127.0.0.1"
 	subconfig.vm.network "forwarded_port", guest: 8500, host: 8500, auto_correct: true, host_ip: "127.0.0.1"
+	subconfig.vm.provision "shell", path: "scripts/webserver.sh"
   end
 
   config.vm.define "client1" do |subconfig|
