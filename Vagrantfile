@@ -7,21 +7,21 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.define "server" do |subconfig|
     subconfig.vm.box = "centos/7"
     subconfig.vm.hostname = "server"
-	subconfig.vm.network "private_network", ip: "10.0.2.15"
+	subconfig.vm.network "private_network", ip: "192.168.0.15"
     subconfig.vm.provision "shell", path: "scripts/server.sh"
   end
 
   config.vm.define "client1" do |subconfig|
     subconfig.vm.box = "centos/7"
     subconfig.vm.hostname = "client1"
-	subconfig.vm.network "private_network", ip: "10.0.2.16"
+	subconfig.vm.network "private_network", ip: "192.168.0.16"
     subconfig.vm.provision "shell", path: "scripts/client1.sh"
   end
 
   config.vm.define "client2" do |subconfig|
     subconfig.vm.box = "centos/7"
     subconfig.vm.hostname = "client2"
-	subconfig.vm.network "private_network", ip: "10.0.2.17"
+	subconfig.vm.network "private_network", ip: "192.168.0.17"
     subconfig.vm.provision "shell", path: "scripts/client2.sh"
   end
 
