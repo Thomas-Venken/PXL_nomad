@@ -57,6 +57,12 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
 end
 ```
+De Vagrantfile behandelt de volgende delen:
+* Statische IP's toevoegen aan elke machine.
+* Runnen van individuele en algemene scripts (Zie volgende deel).
+* Opstarten van de nomad servers en clients.
+* Opstarten van de interface voor Nomad.
+
 Per VM wordt er het install.sh script gerunt. Deze installeert:
 * Docker
 * Nomad
@@ -129,4 +135,6 @@ plugin \"docker\" {
 De 'X' in het bovenstaande script staat voor het nummer van de client.
 
 ## Verdeling van taken
-...
+Thomas heeft in essentie de barebones van het script geschreven. Daarna hebben we voor de rest
+samen dit script aangepast en uiteindelijk opgesplitst in meerdere kleinere scripts. Ook hebben we het grootste
+deel van het 'bugfixen' samen gedaan. De README.md is geschreven door Jens.
