@@ -67,7 +67,26 @@ Per VM wordt er het install.sh script gerunt. Deze installeert:
 * Docker
 * Nomad
 * Consul
+* Eventuele Linux updates
 
+```bash
+#!/bin/bash
+
+availableUpdates=$(sudo yum -q check-update | wc -l)
+
+if [ $availableUpdates -gt 0 ]; then
+    sudo yum upgrade -y;
+else
+    echo $availableUpdates "updates available"
+fi
+
+sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
+sudo yum -y install docker
+sudo yum -y install nomad
+sudo yum -y install consul
+sudo systemctl enable docker
+sudo yum -y install screen
+```
 Wanneer deze dan zijn geinstalleerd, dan wordt vervolgens per VM een individueel script gerunt. Hierin wordt dan de server/client in geconfigureerd.
 
 Server script:
@@ -118,7 +137,7 @@ client {
 
 # Modify our port to avoid a collision with server1
 ports {
-    http = 5656
+    http = 565X
 }
 
 # Disable the dangling container cleanup to avoid interaction with other clients
