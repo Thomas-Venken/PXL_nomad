@@ -59,8 +59,10 @@ end
 De Vagrantfile behandelt de volgende delen:
 * Statische IP's toevoegen aan elke machine.
 * Runnen van individuele en algemene scripts (Zie volgende deel).
-* Opstarten van de nomad servers en clients.
+* Opstarten van de nomad server en clients.
+* Opstarten van de consul server en clients.
 * Opstarten van de interface voor Nomad.
+* Opstarten van de interface voor Consul.
 
 Per VM wordt er het install.sh script gerunt. Deze installeert:
 * Eventuele Linux updates
