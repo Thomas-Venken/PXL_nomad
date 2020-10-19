@@ -8,7 +8,7 @@ log_level = \"DEBUG\"
 data_dir = \"/opt/nomad/client2\"
 
 # Give the agent a unique name. Defaults to hostname
-name = \"client2\"
+name = \"client2-nomad\"
 
 # Enable the client
 client {
@@ -36,4 +36,23 @@ plugin \"docker\" {
   }
 }" > /etc/nomad.d/client2.hcl
 sudo rm -f /etc/nomad.d/nomad.hcl
+
 sudo systemctl start nomad.service
+
+sudo echo "data_dir = \"/opt/consul\"
+
+client_addr= \"0.0.0.0\"
+
+ui = true
+
+#retry_join = [\"consul.domain.internal\"]
+retry_join = [\"192.168.2.15\"]
+#retry_join = [\"[::1]:8301\"]
+#retry_join = [\"consul.domain.internal\", \"10.0.4.67\"]
+
+bind_addr = \"192.168.2.17\"
+node_name = \"client2-consul\"
+
+
+" >> /etc/consul.d/consul.hcl
+sudo systemctl start consul.service
