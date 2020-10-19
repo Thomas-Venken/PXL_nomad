@@ -174,6 +174,8 @@ sudo systemctl start consul.service
 De 'X' in het bovenstaande script staat voor het nummer/IP-address van de client.
 
 ## Webinterface en resultaat
+![Consul Server](/screenshots/nomad.png)
+
 
 ## Verdeling van taken
 Thomas heeft in essentie de barebones van het script geschreven. Daarna hebben we voor de rest
