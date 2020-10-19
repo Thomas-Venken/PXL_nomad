@@ -12,7 +12,7 @@ sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashi
 sudo yum -y install docker
 sudo yum -y install nomad
 sudo yum -y install consul
-
+sudo systemctl enable docker
 sudo yum -y install screen
 
 
