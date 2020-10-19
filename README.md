@@ -175,6 +175,13 @@ sudo systemctl start consul.service
 ```
 De 'X' in het bovenstaande script staat voor het nummer/IP-address van de client.
 
+Uiteindelijk starten we manueel een job op via het volgende commando:
+```bash
+    $ nomad job run -address=http://192.168.2.15:4646 /opt/nomad/webserver.nomad
+```
+
+In het volgende gedeelte staan de screenshots van de werking.
+
 ## Webinterface en resultaat
 ![Nomad Server](/screenshots/Nomad-Server.png)
 ![Nomad Clients](/screenshots/Nomad-Clients.png)
@@ -182,6 +189,8 @@ De 'X' in het bovenstaande script staat voor het nummer/IP-address van de client
 ![Consul Server](/screenshots/Consul-Server.png)
 ![Consul Clients](/screenshots/Consul-Clients.png)
 ![Consul Server & Clients](/screenshots/Consul-Nomad-Server-en-Clients.png)
+![Nomad Job](/screenshots/Nomad-Job.png)
+![Nomad Job Allocation](/screenshots/Nomad-Job-Allocation.png)
 
 ## Verdeling van taken
 Thomas heeft in essentie de barebones van het script geschreven. Daarna hebben we voor de rest
