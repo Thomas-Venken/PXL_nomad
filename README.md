@@ -59,8 +59,10 @@ end
 De Vagrantfile behandelt de volgende delen:
 * Statische IP's toevoegen aan elke machine.
 * Runnen van individuele en algemene scripts (Zie volgende deel).
-* Opstarten van de nomad servers en clients.
+* Opstarten van de nomad server en clients.
+* Opstarten van de consul server en clients.
 * Opstarten van de interface voor Nomad.
+* Opstarten van de interface voor Consul.
 
 Per VM wordt er het install.sh script gerunt. Deze installeert:
 * Eventuele Linux updates
@@ -174,8 +176,12 @@ sudo systemctl start consul.service
 De 'X' in het bovenstaande script staat voor het nummer/IP-address van de client.
 
 ## Webinterface en resultaat
-![Consul Server](/screenshots/nomad.png)
-
+![Nomad Server](/screenshots/Nomad-Server.png)
+![Nomad Clients](/screenshots/Nomad-Clients.png)
+![Consul](/screenshots/Consul.png)
+![Consul Server](/screenshots/Consul-Server.png)
+![Consul Clients](/screenshots/Consul-Clients.png)
+![Consul Server & Clients](/screenshots/Consul-Nomad-Server-en-Clients.png)
 
 ## Verdeling van taken
 Thomas heeft in essentie de barebones van het script geschreven. Daarna hebben we voor de rest
