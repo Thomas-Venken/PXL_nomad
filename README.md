@@ -173,6 +173,8 @@ sudo systemctl start consul.service
 ```
 De 'X' in het bovenstaande script staat voor het nummer/IP-address van de client.
 
+## Webinterface en resultaat
+
 ## Verdeling van taken
 Thomas heeft in essentie de barebones van het script geschreven. Daarna hebben we voor de rest
 samen dit script aangepast en uiteindelijk opgesplitst in meerdere kleinere scripts. Ook hebben we het grootste
