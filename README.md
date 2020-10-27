@@ -55,6 +55,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.provision "shell", path: "scripts/install.sh"
 
 end
+
 ```
 De Vagrantfile behandelt de volgende delen:
 * Statische IP's toevoegen aan elke machine.
@@ -87,69 +88,42 @@ sudo yum -y install nomad
 sudo yum -y install consul
 sudo systemctl enable docker
 sudo systemctl start docker
+sudo sed -i '$ a export NOMAD_ADDR=http://192.168.2.15:4646' .bashrc
 ```
 Wanneer deze dan zijn geinstalleerd, dan wordt vervolgens per VM een individueel script gerunt. Hierin wordt dan de server/client in geconfigureerd.
 Op deze server/clients worden beide nomad en consul gezet en gerunt.
 
 Server script:
 ```bash
+#!/bin/bash
+
 sudo mkdir /opt/nomad/server > /dev/null 2>&1
-sudo echo "# Increase log verbosity
-log_level = \"DEBUG\"
-# Set server ip
-bind_addr = \"192.168.2.15\"
-
-# Setup data dir
-data_dir = \"/opt/nomad/server\"
-
-# Enable the server
-server {
-    enabled = true
-
-    # Self-elect, should be 3 or 5 for production
-    bootstrap_expect = 1
-}" >  /etc/nomad.d/server.hcl
-sudo rm -f /etc/nomad.d/nomad.hcl
+sed -i '2s/^/log_level = "DEBUG"/' /etc/nomad.d/nomad.hcl
+sed -i 's/0.0.0.0/192.168.2.15/g' /etc/nomad.d/nomad.hcl
+sed -i 's/\/data/\/server/g' /etc/nomad.d/nomad.hcl
+sed -i 's/127.0.0.1/192.168.2.15/g' /etc/nomad.d/nomad.hcl
 sudo systemctl start nomad.service
-sudo echo "data_dir = \"/opt/consul\"
-client_addr= \"0.0.0.0\"
-ui = true
-server = true
-bootstrap_expect=1
-#retry_join = [\"consul.domain.internal\"]
-#retry_join = [\"10.0.4.67\"]
-#retry_join = [\"[::1]:8301\"]
-#retry_join = [\"consul.domain.internal\", \"10.0.4.67\"]
-bind_addr = \"192.168.2.15\"
-" >> /etc/consul.d/consul.hcl
+sed -i 's/#server = true/server = true/g' /etc/consul.d/consul.hcl
+sed -i 's/#bootstrap_expect=3/bootstrap_expect=1/g' /etc/consul.d/consul.hcl
+sed -i '$ a bind_addr = "192.168.2.15"' /etc/consul.d/consul.hcl
 sudo systemctl start consul.service
-
 ```
 Client script:
 ```bash
 #!/bin/bash
-
 sudo mkdir /opt/nomad/clientX > /dev/null 2>&1
-sudo echo "# Increase log verbosity
-log_level = \"DEBUG\"
-# Setup data dir
+sudo echo "log_level = \"DEBUG\"
 data_dir = \"/opt/nomad/clientX\"
-# Give the agent a unique name. Defaults to hostname
-name = \"clientX-nomad\"
-# Enable the client
+name = \"client1-nomad\"
+bind_addr = \"192.168.2.X\"
 client {
     enabled = true
-    # For demo assume we are talking to server1. For production,
-    # this should be like \"nomad.service.consul:4647\" and a system
-    # like Consul used for service discovery.
     servers = [\"192.168.2.15:4647\"]
 	network_interface=\"eth1\"
 }
-# Modify our port to avoid a collision with server1
 ports {
     http = 5656
 }
-# Disable the dangling container cleanup to avoid interaction with other clients
 plugin \"docker\" {
   config {
     gc {
@@ -158,19 +132,11 @@ plugin \"docker\" {
       }
     }
   }
-}" > /etc/nomad.d/clientX.hcl
-sudo rm -f /etc/nomad.d/nomad.hcl
+}" > /etc/nomad.d/nomad.hcl
 sudo systemctl start nomad.service
-sudo echo "data_dir = \"/opt/consul\"
-client_addr= \"0.0.0.0\"
-ui = true
-#retry_join = [\"consul.domain.internal\"]
-retry_join = [\"192.168.2.15\"]
-#retry_join = [\"[::1]:8301\"]
-#retry_join = [\"consul.domain.internal\", \"10.0.4.67\"]
-bind_addr = \"192.168.2.X\"
-node_name = \"clientX-consul\"
-" >> /etc/consul.d/consul.hcl
+sed -i '$ a retry_join = ["192.168.2.15"]' /etc/consul.d/consul.hcl
+sed -i '$ a bind_addr = "192.168.2.X"' /etc/consul.d/consul.hcl
+sed -i '$ a node_name = "client1-consul"' /etc/consul.d/consul.hcl
 sudo systemctl start consul.service
 ```
 De 'X' in het bovenstaande script staat voor het nummer/IP-address van de client.
