@@ -9,7 +9,8 @@ else
 fi
 
 sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
-sudo yum -y install docker
+sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+sudo yum -y install docker-ce
 sudo yum -y install nomad
 sudo yum -y install consul
 sudo systemctl enable docker
