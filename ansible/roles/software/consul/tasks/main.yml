@@ -9,4 +9,5 @@
   yum:
     name: consul
     state: installed
-  notify: restart crond
+  notify: restart consul
+  
