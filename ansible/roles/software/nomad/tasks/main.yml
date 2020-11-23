@@ -1,23 +1,12 @@
 ---
-- name: install cronie
+- name: add nomad repository
+  yum_repository:
+    name: nomad
+    description: add nomad repository
+    baseurl: https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
+
+- name: install nomad
   yum:
-    name: cronie
+    name: nomad
     state: installed
-  notify: restart crond
-
-- name: add hello script
-  template:
-    src: hello.sh.j2
-    dest: /usr/local/bin/hello.sh
-    owner: "root"
-    group: "root"
-    mode: 0755
-  notify: restart crond
-
-- name: configure hello cron
-  cron:
-    name: hourly hello
-    user: root
-    special_time: hourly
-    job: "/usr/local/bin/hello.sh"
-    state: present
+  notify: restart nomad
