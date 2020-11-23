@@ -1,23 +1,12 @@
 ---
-- name: install cronie
+- name: add custom repository
+  yum_repository:
+    name: consul
+    description: add consul repository
+    command: yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
+
+- name: install consul
   yum:
-    name: cronie
+    name: consul
     state: installed
   notify: restart crond
-
-- name: add hello script
-  template:
-    src: hello.sh.j2
-    dest: /usr/local/bin/hello.sh
-    owner: "root"
-    group: "root"
-    mode: 0755
-  notify: restart crond
-
-- name: configure hello cron
-  cron:
-    name: hourly hello
-    user: root
-    special_time: hourly
-    job: "/usr/local/bin/hello.sh"
-    state: present
