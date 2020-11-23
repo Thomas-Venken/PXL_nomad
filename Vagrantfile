@@ -69,4 +69,5 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       }
 #      ansible.verbose = '-vvv'
     end
+  end  
 end
