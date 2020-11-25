@@ -30,7 +30,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       ansible.host_vars = {
 #        "server" => {"crond__content" => "server_value"}
       }
-#      ansible.verbose = '-vvv'
+#      ansible.verbose = '-vvv' 
     end
   end
 

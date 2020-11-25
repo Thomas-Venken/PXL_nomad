@@ -1,5 +1,5 @@
 ---
-- name: restart crond
+- name: restart nomad
   service:
-    name: crond
+    name: nomad
     state: restarted
