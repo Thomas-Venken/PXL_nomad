@@ -1,12 +1,12 @@
 ---
-- name: add custom repository
+- name: add docker-ce repository
   yum_repository:
-    name: docker-cd
+    name: docker-ce
     description: add docker-ce repository
-    command: yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+    baseurl: https://download.docker.com/linux/centos/$releasever/$basearch/stable
+    gpgkey: https://download.docker.com/linux/centos/gpg
 
 - name: install docker-ce
   yum:
     name: docker-ce
-    state: installed
-  
+    state: present
