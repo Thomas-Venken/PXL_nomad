@@ -1,8 +1,4 @@
 ---
-# - name: update
-#   yum:
-#     name: '*'
-#     state: latest
 
 - name: add custom repository
   yum_repository:
@@ -16,4 +12,3 @@
     name: consul
     state: present
 
-  

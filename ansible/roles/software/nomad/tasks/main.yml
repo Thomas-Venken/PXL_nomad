@@ -1,8 +1,4 @@
 ---
-# - name: update
-#   yum:
-#     name: '*'
-#     state: latest
 
 - name: add nomad repository
   yum_repository:
