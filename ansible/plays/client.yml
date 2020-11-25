@@ -6,3 +6,4 @@
   roles:
     - role: software/nomad
     - role: software/consul
+    - role: software/docker
