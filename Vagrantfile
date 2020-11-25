@@ -3,6 +3,8 @@
 VAGRANTFILE_API_VERSION = "2"
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
+  config.vbguest.auto_update = false
+
   config.vm.provider :virtualbox do |virtualbox, override|
     virtualbox.customize ["modifyvm", :id, "--memory", 2048]
   end
@@ -18,7 +20,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 	  server.vm.network "forwarded_port", guest: 4646, host: 4646, auto_correct: true, host_ip: "127.0.0.1"
     server.vm.network "forwarded_port", guest: 8500, host: 8500, auto_correct: true, host_ip: "127.0.0.1"
 
-    server.vm.provision "ansible" do |ansible|
+    server.vm.provision "ansible_local" do |ansible|
       ansible.config_file = "ansible/ansible.cfg"
       ansible.playbook = "ansible/plays/server.yml"
       ansible.groups = {
@@ -37,7 +39,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     client1.vm.hostname = "client1"
 	  client1.vm.network "private_network", ip: "192.168.2.16"
     
-    client1.vm.provision "ansible" do |ansible|
+    client1.vm.provision "ansible_local" do |ansible|
       ansible.config_file = "ansible/ansible.cfg"
       ansible.playbook = "ansible/plays/client.yml"
       ansible.groups = {
@@ -57,7 +59,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     client2.vm.hostname = "client2"
     client2.vm.network "private_network", ip: "192.168.2.17"
     
-    client2.vm.provision "ansible" do |ansible|
+    client2.vm.provision "ansible_local" do |ansible|
       ansible.config_file = "ansible/ansible.cfg"
       ansible.playbook = "ansible/plays/client.yml"
       ansible.groups = {
