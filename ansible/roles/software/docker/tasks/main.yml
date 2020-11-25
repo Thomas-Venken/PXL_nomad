@@ -10,3 +10,4 @@
   yum:
     name: docker-ce
     state: present
+  notify: enable docker-ce
