@@ -1,12 +1,12 @@
 ---
-- name: add nomad repository
+- name: add docker-ce repository
   yum_repository:
-    name: nomad
-    description: add nomad repository
-    baseurl: https://rpm.releases.hashicorp.com/RHEL/$releasever/$basearch/stable
-    gpgkey: https://rpm.releases.hashicorp.com/gpg
+    name: docker-ce
+    description: add docker-ce repository
+    baseurl: https://download.docker.com/linux/centos/$releasever/$basearch/stable
+    gpgkey: https://download.docker.com/linux/centos/gpg
 
-- name: install nomad
+- name: install docker-ce
   yum:
-    name: nomad
+    name: docker-ce
     state: present
