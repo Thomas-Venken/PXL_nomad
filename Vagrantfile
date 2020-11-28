@@ -25,12 +25,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       ansible.playbook = "ansible/plays/server.yml"
       ansible.groups = {
         "servers" => ["server"],
-#        "servers:vars" => {"crond__content" => "servers_value"}
       }
-      ansible.host_vars = {
-#        "server" => {"crond__content" => "server_value"}
-      }
-#      ansible.verbose = '-vvv' 
+ 
     end
   end
 
