@@ -25,6 +25,13 @@
     path: /etc/consul.d/consul.hcl
     regexp: 'bootstrap_expect=1'
     line: bootstrap_expect={{amount_bootstrap}}
+  notify: enable retry join
+
+- name: enable retry join
+  lineinfile:
+    path: /etc/consul.d/consul.hcl
+    regexp: '#retry_join = ["10.0.4.67"]'
+    line: retry_join = ["{{ server_ip }}"]
   notify: Add bind_addr
 
 - name: Add bind_addr
