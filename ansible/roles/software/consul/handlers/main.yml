@@ -11,11 +11,16 @@
     path: /etc/selinux/config
     regexp: '^#bootstrap_expect=3'
     line: bootstrap_expect=1
+  notify: Add bind_addr
+
+- name: Add bind_addr
+  lineinfile:
+    path: /tmp/testfile
+    line: bind_addr = "192.168.2.15"
+    create: yes
   notify: started consul
 
 - name: started consul
   service:
     name: consul
     state: started
-
-#sed -i '$ a bind_addr = "192.168.2.15"' /etc/consul.d/consul.hcl

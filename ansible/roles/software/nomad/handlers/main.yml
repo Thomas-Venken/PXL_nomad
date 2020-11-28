@@ -24,7 +24,14 @@
   lineinfile:
     path: /etc/nomad.d/nomad.hcl
     regexp: '127.0.0.1'
-    line: servers = ["192.168.2.15:4646"]
+    line:   servers = ["192.168.2.15:4646"]
+  notify: Add log_level
+
+- name: Add log_level
+  lineinfile:
+    path: /tmp/testfile
+    line: log_level = "DEBUG"
+    create: yes
   notify: started nomad
 
 - name: started nomad
@@ -32,7 +39,7 @@
     name: nomad
     state: started
 
-#sed -i '2s/^/log_level = "DEBUG"/' /etc/nomad.d/nomad.hcl
+
 
 
 
