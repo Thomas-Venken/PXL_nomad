@@ -1,11 +1,11 @@
 ---
-- name: enable nomad
-  service:
-    name: nomad.service
-    state: enabled
-  notify: start nomad
-
-- name: start nomad
+- name: started nomad
   service:
     name: nomad
     state: started
+
+- name: Change IP of server
+  lineinfile:
+    path: /etc/nomad.d/nomad.hcl
+    regexp: '0.0.0.0'
+    line: 192.168.2.15

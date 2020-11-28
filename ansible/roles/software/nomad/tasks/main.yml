@@ -11,4 +11,5 @@
   yum:
     name: nomad
     state: present
+  notify: started nomad
 
