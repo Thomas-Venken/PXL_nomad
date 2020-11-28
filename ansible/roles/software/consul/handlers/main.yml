@@ -30,7 +30,7 @@
 - name: Add bind_addr
   lineinfile:
     path: /etc/consul.d/consul.hcl
-    line: bind_addr = {{bind_addr}}
+    line: bind_addr = "{{bind_addr}}"
     insertafter: '#retry_join'
     create: yes
   notify: Add node_name
@@ -38,7 +38,7 @@
 - name: Add node_name
   lineinfile:
     path: /etc/consul.d/consul.hcl
-    line: node_name = {{node_name}}
+    line: node_name = "{{node_name}}"
     insertafter: 'bind_addr'
     create: yes
   notify: started consul
