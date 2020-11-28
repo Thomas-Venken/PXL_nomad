@@ -1,5 +1,11 @@
 ---
-- name: restart nomad
+- name: enable nomad
+  service:
+    name: nomad.service
+    state: enabled
+  notify: start nomad
+
+- name: start nomad
   service:
     name: nomad
-    state: restarted
+    state: started
