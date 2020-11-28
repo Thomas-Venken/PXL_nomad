@@ -33,6 +33,6 @@
     state: started
 
 #sed -i '2s/^/log_level = "DEBUG"/' /etc/nomad.d/nomad.hcl
-#sudo systemctl start nomad.service
+
 
 

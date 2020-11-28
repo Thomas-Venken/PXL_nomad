@@ -1,11 +1,21 @@
 ---
+- name: Uncomment server
+  lineinfile:
+    path: /etc/selinux/config
+    regexp: '^#server = true'
+    line: server = true
+  notify: Uncomment bootstrap
+
+- name: Uncomment bootstrap
+  lineinfile:
+    path: /etc/selinux/config
+    regexp: '^#bootstrap_expect=3'
+    line: bootstrap_expect=1
+  notify: started consul
+
 - name: started consul
   service:
     name: consul
     state: started
 
-
-#sed -i 's/#server = true/server = true/g' /etc/consul.d/consul.hcl
-#sed -i 's/#bootstrap_expect=3/bootstrap_expect=1/g' /etc/consul.d/consul.hcl
 #sed -i '$ a bind_addr = "192.168.2.15"' /etc/consul.d/consul.hcl
-#sudo systemctl start consul.service

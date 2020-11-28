@@ -11,5 +11,5 @@
   yum:
     name: consul
     state: present
-  notify: started consul
+  notify: Uncomment server
 
