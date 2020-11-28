@@ -1,11 +1,5 @@
 ---
-- name: enable consul
-  service:
-    name: consul.service
-    state: enabled
-  notify: start consul
-
-- name: start consul
+- name: started consul
   service:
     name: consul
     state: started
