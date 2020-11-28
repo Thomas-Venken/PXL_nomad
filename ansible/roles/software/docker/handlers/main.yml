@@ -1,11 +1,6 @@
 ---
-- name: enable docker-ce
-  service:
-    name: docker.service
-    state: enabled
-  notify: start docker-ce
-
-- name: start docker-ce
+- name: started docker-ce
   service:
     name: docker.service
     state: started
+
