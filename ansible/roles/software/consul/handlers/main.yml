@@ -1,4 +1,8 @@
 ---
+- group: server
+  vars_files:
+    - /group_vars/servers.yml
+
 - name: Uncomment server
   lineinfile:
     path: /etc/consul.d/consul.hcl
@@ -16,16 +20,8 @@
 - name: Add bind_addr
   lineinfile:
     path: /etc/consul.d/consul.hcl
-    line: bind_addr = "192.168.2.15"
+    line: bind_addr = "{{ server_ip }}"
     insertafter: '#retry_join'
-    create: yes
-  notify: Add network_interface
-
-- name: Add network_interface
-  lineinfile:
-    path: /etc/consul.d/consul.hcl
-    line: network_interface="eth1"
-    insertafter: 'bind_addr = "192.168.2.15"'
     create: yes
   notify: started consul
 
