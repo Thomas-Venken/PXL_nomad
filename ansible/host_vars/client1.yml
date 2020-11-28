@@ -1,3 +1,4 @@
 server_ip : "192.168.2.15"
-client_ip: "192.168.2.16"
+bind_addr: "192.168.2.16"
 node_name: "client1-consul"
+data_dir: "/opt/nomad/client1"
