@@ -3,6 +3,7 @@
   service:
     name: nomad
     state: started
+  notify: Change IP of server
 
 - name: Change IP of server
   lineinfile:
