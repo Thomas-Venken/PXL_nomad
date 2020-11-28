@@ -3,7 +3,7 @@
   lineinfile:
     path: /etc/consul.d/consul.hcl
     regexp: '#server = true'
-    line: server = true
+    line: server = {{server_enable_disable}}
   notify: Uncomment bootstrap
 
 - name: Uncomment bootstrap
@@ -11,7 +11,14 @@
     path: /etc/consul.d/consul.hcl
     regexp: '#bootstrap_expect=3'
     line: bootstrap_expect=1
-  notify: edit bootstrap
+  notify: edit client address
+
+- name: edit client address
+  lineinfile:
+    path: /etc/consul.d/consul.hcl
+    regexp: 'client_addr = "0.0.0.0"'
+    line: client_addr = {{bind_addr}}
+  notify: Add bind_addr
 
 - name: edit bootstrap
   lineinfile:

@@ -24,7 +24,7 @@
   lineinfile:
     path: /etc/nomad.d/nomad.hcl
     regexp: 'server { enabled = true'
-    line: enabled = {{server_enable}}
+    line: enabled = {{server_enable_disable}}
   notify: Change servers in client
 
 - name: Change servers in client
