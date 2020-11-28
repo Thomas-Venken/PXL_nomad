@@ -3,7 +3,7 @@
   lineinfile:
     path: /etc/nomad.d/nomad.hcl
     regexp: '0.0.0.0'
-    line: bind_addr = {{bind_addr}}
+    line: bind_addr = "{{bind_addr}}"
   notify: enable_disable server
 
 - name: enable_disable server
