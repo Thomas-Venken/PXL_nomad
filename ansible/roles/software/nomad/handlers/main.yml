@@ -31,6 +31,7 @@
   lineinfile:
     path: /etc/nomad.d/nomad.hcl
     line: log_level = "DEBUG"
+    insertbefore: 'bind_addr'
     create: yes
   notify: started nomad
 

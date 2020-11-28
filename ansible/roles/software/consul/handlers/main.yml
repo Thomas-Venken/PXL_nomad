@@ -17,7 +17,7 @@
   lineinfile:
     path: /etc/consul.d/consul.hcl
     line: bind_addr = "192.168.2.15"
-    insertafter: '#retry_join '
+    insertafter: '#retry_join'
     create: yes
   notify: started consul
 
