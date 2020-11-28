@@ -29,7 +29,7 @@
 
 - name: Add log_level
   lineinfile:
-    path: /tmp/testfile
+    path: /etc/nomad.d/nomad.hcl
     line: log_level = "DEBUG"
     create: yes
   notify: started nomad
@@ -38,8 +38,3 @@
   service:
     name: nomad
     state: started
-
-
-
-
-
