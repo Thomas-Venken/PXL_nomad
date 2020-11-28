@@ -20,7 +20,7 @@
 - name: Add bind_addr
   lineinfile:
     path: /etc/consul.d/consul.hcl
-    line: bind_addr = "{{ server_ip }}"
+    line: bind_addr = "{{ bind_addr }}"
     insertafter: '#retry_join'
     create: yes
   notify: started consul
