@@ -19,6 +19,13 @@
     line: bind_addr = "192.168.2.15"
     insertafter: '#retry_join'
     create: yes
+  notify: edit client_addr
+
+- name: edit client_addr
+  lineinfile:
+    path: /etc/consul.d/consul.hcl
+    regexp: 'client_addr = "0.0.0.0"'
+    line: client_addr = "192.168.2.15"
   notify: started consul
 
 - name: started consul
