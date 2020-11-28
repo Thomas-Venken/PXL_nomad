@@ -4,6 +4,7 @@
     path: /etc/nomad/server
     state: directory
     mode: '0755'
+    create: yes
   notify: Change IP of server
 
 - name: Change IP of server
@@ -17,7 +18,7 @@
   lineinfile:
     path: /etc/nomad.d/nomad.hcl
     regexp: '/data'
-    line: data_dir = "opt/nomad/server"
+    line: data_dir = "/opt/nomad/server"
   notify: Change servers in client
 
 - name: Change servers in client
