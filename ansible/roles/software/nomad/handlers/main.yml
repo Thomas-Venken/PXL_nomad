@@ -27,7 +27,6 @@
     line: enabled = {{server_enable}}
   notify: Change servers in client
 
-
 - name: Change servers in client
   lineinfile:
     path: /etc/nomad.d/nomad.hcl
