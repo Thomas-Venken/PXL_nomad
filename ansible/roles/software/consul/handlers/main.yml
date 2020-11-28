@@ -2,14 +2,14 @@
 - name: Uncomment server
   lineinfile:
     path: /etc/consul.d/consul.hcl
-    regexp: '^#server = true'
+    regexp: '#server = true'
     line: server = true
   notify: Uncomment bootstrap
 
 - name: Uncomment bootstrap
   lineinfile:
     path: /etc/consul.d/consul.hcl
-    regexp: '^#bootstrap_expect=3'
+    regexp: '#bootstrap_expect=3'
     line: bootstrap_expect=1
   notify: Add bind_addr
 
