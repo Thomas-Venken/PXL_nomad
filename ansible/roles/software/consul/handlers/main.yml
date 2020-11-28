@@ -11,12 +11,19 @@
     path: /etc/consul.d/consul.hcl
     regexp: '#bootstrap_expect=3'
     line: bootstrap_expect=1
+  notify: edit bootstrap
+
+- name: edit bootstrap
+  lineinfile:
+    path: /etc/consul.d/consul.hcl
+    regexp: 'bootstrap_expect=1'
+    line: bootstrap_expect={{amount_bootstrap}}
   notify: Add bind_addr
 
 - name: Add bind_addr
   lineinfile:
     path: /etc/consul.d/consul.hcl
-    line: bind_addr = {{ bind_addr }}
+    line: bind_addr = {{bind_addr}}
     insertafter: '#retry_join'
     create: yes
   notify: started consul
