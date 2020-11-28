@@ -1,23 +1,9 @@
 ---
-- name: Create server dir in opt
-  file:
-    path: "{{data_dir}}"
-    state: directory
-    mode: '0755'
-  notify: Change IP of server
-
 - name: Change IP of server
   lineinfile:
     path: /etc/nomad.d/nomad.hcl
     regexp: '0.0.0.0'
     line: bind_addr = {{bind_addr}}
-  notify: Change data_dir
-
-- name: Change data_dir
-  lineinfile:
-    path: /etc/nomad.d/nomad.hcl
-    regexp: '/data'
-    line: data_dir = {{data_dir}}
   notify: enable_disable server
 
 - name: enable_disable server
@@ -31,7 +17,7 @@
   lineinfile:
     path: /etc/nomad.d/nomad.hcl
     regexp: '127.0.0.1'
-    line: servers = [{{server_ip}}:4646]
+    line: servers = ["{{server_ip}}:4646"]
   notify: Add log_level
 
 - name: Add log_level
