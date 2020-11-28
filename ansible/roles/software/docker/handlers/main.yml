@@ -1,13 +1,6 @@
 ---
-<<<<<<< HEAD
 - name: started docker-ce
   service:
     name: docker.service
     state: started
 
-=======
-- name: start docker-ce
-  service:
-    name: docker.service
-    state: started
->>>>>>> 87fd5687e7746cc6e10b391e617ca6a91dd93cb2
