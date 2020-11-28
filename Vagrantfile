@@ -26,6 +26,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       ansible.groups = {
         "servers" => ["server"],
       }
+	  ansible.host_vars = {}
     end
   end
 
@@ -40,8 +41,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       ansible.groups = {
         "clients" => ["client1"],
       }
+	  ansible.host_vars = {}
     end
-	
   end
 
   config.vm.define "client2" do |client2|
@@ -55,6 +56,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       ansible.groups = {
         "clients" => ["client2"],
       }
+	  ansible.host_vars = {}
     end
   end  
 end
