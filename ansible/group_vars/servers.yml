@@ -1,2 +1,6 @@
+<<<<<<< HEAD
 ---
 server_ip : {{ GetInterfaceIP "eth1" }}
+=======
+server_ip : "192.168.2.15"
+>>>>>>> d7619c8dc5d8238aff0435050f43c057c8efacfe
