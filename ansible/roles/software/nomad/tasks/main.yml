@@ -11,5 +11,5 @@
   yum:
     name: nomad
     state: present
-  notify: Create server dir in opt
+  notify: Change IP of server
 
