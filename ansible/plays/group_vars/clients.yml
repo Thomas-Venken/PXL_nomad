@@ -1,4 +1,10 @@
 server_ip : "192.168.2.15"
 server_enable: false
+<<<<<<< HEAD
 amount_bootstrap: 0
+=======
+amount_bootstrap: false
+nomad_config: "/etc/nomad.d/nomad.hcl"
+consul_config: "/etc/consul.d/consul.hcl"
+>>>>>>> e935e71e95ed7b2aebfcd65134911e86c0d7ce74
 bind_addr: "{{ansible_eth1.ipv4.address}}"
