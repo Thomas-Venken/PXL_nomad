@@ -1,5 +1,5 @@
 ---
-- name: start consul
+- name: started consul
   service:
     name: consul
     state: started
