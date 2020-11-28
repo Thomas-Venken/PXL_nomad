@@ -26,7 +26,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       ansible.groups = {
         "servers" => ["server"],
       }
- 
     end
   end
 
@@ -40,12 +39,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       ansible.playbook = "ansible/plays/client.yml"
       ansible.groups = {
         "clients" => ["client1"],
-#        "clients:vars" => {"crond__content" => "clients_value"}
       }
-      ansible.host_vars = {
-#        "client1" => {"crond__content" => "client1_value"}
-      }
-#      ansible.verbose = '-vvv'
     end
 	
   end
@@ -60,12 +54,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       ansible.playbook = "ansible/plays/client.yml"
       ansible.groups = {
         "clients" => ["client2"],
-#        "clients:vars" => {"crond__content" => "clients_value"}
       }
-      ansible.host_vars = {
-#        "client2" => {"crond__content" => "client2_value"}
-      }
-#      ansible.verbose = '-vvv'
     end
   end  
 end
