@@ -1,2 +1,2 @@
 node_name: "client2-consul"
-data_dir: "opt/nomad/client2"
+data_dir: "/opt/nomad/client2"

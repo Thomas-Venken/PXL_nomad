@@ -1,2 +1,2 @@
-data_dir: "opt/nomad/server"
+data_dir: "/opt/nomad/server"
 node_name: "server-consul"

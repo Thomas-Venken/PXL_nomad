@@ -1,7 +1,7 @@
 ---
 - name: Create server dir in opt
   file:
-    path: /"{{data_dir}}"
+    path: "{{data_dir}}"
     state: directory
     mode: '0755'
   notify: Change IP of server
@@ -23,7 +23,7 @@
 - name: enable_disable server
   lineinfile:
     path: /etc/nomad.d/nomad.hcl
-    regexp: 'server { enabled = true'
+    regexp: '?enabled = true'
     line: enabled = {{server_enable_disable}}
   notify: Change servers in client
 
