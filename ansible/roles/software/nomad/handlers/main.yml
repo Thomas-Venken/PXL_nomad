@@ -1,12 +1,38 @@
 ---
-- name: started nomad
-  service:
-    name: nomad
-    state: started
+- name: Create server dir in opt
+  file:
+    path: /etc/nomad/server
+    state: directory
+    mode: '0755'
   notify: Change IP of server
 
 - name: Change IP of server
   lineinfile:
     path: /etc/nomad.d/nomad.hcl
     regexp: '0.0.0.0'
-    line: 192.168.2.15
+    line: bind_addr = "192.168.2.15"
+  notify: Change data_dir
+
+- name: Change data_dir
+  lineinfile:
+    path: /etc/nomad.d/nomad.hcl
+    regexp: '/data'
+    line: data_dir = "opt/nomad/server"
+  notify: Change servers in client
+
+- name: Change servers in client
+  lineinfile:
+    path: /etc/nomad.d/nomad.hcl
+    regexp: '127.0.0.1'
+    line: servers = ["192.168.2.15:4646"]
+  notify: started nomad
+
+- name: started nomad
+  service:
+    name: nomad
+    state: started
+
+#sed -i '2s/^/log_level = "DEBUG"/' /etc/nomad.d/nomad.hcl
+#sudo systemctl start nomad.service
+
+

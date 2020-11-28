@@ -11,5 +11,5 @@
   yum:
     name: nomad
     state: present
-  notify: started nomad
+  notify: Create server dir in opt
 
