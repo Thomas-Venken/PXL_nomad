@@ -24,7 +24,23 @@
   lineinfile:
     path: /etc/nomad.d/nomad.hcl
     regexp: '127.0.0.1'
-    line:   servers = ["192.168.2.15:4646"]
+    line: servers = ["192.168.2.15:4646"]
+  notify: Add network interface under bootstrap
+
+- name: Add network interface under bootstrap
+  lineinfile:
+    path: /etc/nomad.d/nomad.hcl
+    line: network_interface="eth1"
+    insertbefore: 'bootstrap_expect'
+    create: yes
+  notify: Add network interface under servers
+
+- name: Add network interface under servers
+  lineinfile:
+    path: /etc/nomad.d/nomad.hcl
+    line: network_interface="eth1"
+    insertbefore: 'servers = ["192.168.2.15:4646"]'
+    create: yes
   notify: Add log_level
 
 - name: Add log_level
