@@ -1,1 +1,1 @@
-crond__content: 'servers_value'
+server_ip : {{ GetInterfaceIP \"eth1\" }}

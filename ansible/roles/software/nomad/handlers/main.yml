@@ -4,7 +4,6 @@
     path: /etc/nomad/server
     state: directory
     mode: '0755'
-    create: yes
   notify: Change IP of server
 
 - name: Change IP of server
