@@ -1,4 +1,4 @@
-# Groep 5 - Nomad & consul
+# Groep 5 - Ansible
 
 ## Installatie en Configuratie
 Als je het volgende commando geeft, dan starten er drie Virtual Machine's op.
@@ -115,21 +115,92 @@ Per VM worden de volgende roles geinstalleerd:
 
 Beide de roles Nomad, Consul en Docker voeren de volgende handlers.yml en task.yml
 
+Consul:
+```bash
+---
+- name: Started Consul
+  service:
+    name: consul
+    state: started
+```
+```bash
+---
+- name: Add Consul repository
+  yum_repository:
+    name: consul
+    description: add consul repository
+    baseurl: https://rpm.releases.hashicorp.com/RHEL/$releasever/$basearch/stable
+    gpgkey: https://rpm.releases.hashicorp.com/gpg
+
+- name: Install Consul
+  yum:
+    name: consul
+    state: present
+
+- name: Template Consul file
+  template:
+    src: consul.sh.j2
+    dest: /etc/consul.d/consul.hcl
+  notify: Started Consul
+```
 Nomad:
 ```bash
-
+---
+- name: Started Nomad
+  service:
+    name: nomad
+    state: started
 ```
-
-Consul
 ```bash
+---
 
+- name: Add Nomad repository
+  yum_repository:
+    name: nomad
+    description: add nomad repository
+    baseurl: https://rpm.releases.hashicorp.com/RHEL/$releasever/$basearch/stable
+    gpgkey: https://rpm.releases.hashicorp.com/gpg
+
+- name: Install Nomad
+  yum:
+    name: nomad
+    state: present
+
+- name: Create a directory if it does not exist
+  file:
+    path: /opt/nomad/{{inventory_hostname}}
+    state: directory
+    mode: '0755'
+
+- name: Template Nomad file
+  template:
+    src: nomad.sh.j2
+    dest: /etc/nomad.d/nomad.hcl
+  notify: Started Nomad
 ```
-
-Docker
+Docker:
 ´´´bash
-
+---
+- name: started docker-ce
+  service:
+    name: docker.service
+    state: started
 ´´´
+```bash
+---
+- name: add docker-ce repository
+  yum_repository:
+    name: docker-ce
+    description: add docker-ce repository
+    baseurl: https://download.docker.com/linux/centos/$releasever/$basearch/stable
+    gpgkey: https://download.docker.com/linux/centos/gpg
 
+- name: install docker-ce
+  yum:
+    name: docker-ce
+    state: present
+  notify: started docker-ce
+```
 ## Verdeling van taken
 Thomas heeft in essentie de barebones van het script geschreven. Daarna hebben we voor de rest
 samen dit script aangepast en uiteindelijk opgesplitst in meerdere kleinere scripts. Ook hebben we het grootste
