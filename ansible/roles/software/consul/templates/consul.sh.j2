@@ -1,0 +1,18 @@
+# {{ ansible_managed }}
+
+{% if server_ip is true %}
+
+server = {{ server_enable_disable }}
+
+bootstrap_expect = {{ bootstrap_expect }}
+
+bind_addr = {{ bind_addr }}
+
+
+{% else %}
+
+retry_join = ["{{ server_ip }}"]
+
+bind_addr = "{{ bind_addr }}"
+
+node_name = "{{ node_name }}"
