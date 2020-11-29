@@ -11,4 +11,12 @@
   yum:
     name: nomad
     state: present
-  notify: Template Nomad file
+
+- name: Template Nomad file
+  template:
+    src: roles/software/nomad/templates/nomad.sh.j2
+    dest: /opt/nomad/data/nomad.hcl
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Started Nomad

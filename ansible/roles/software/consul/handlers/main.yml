@@ -1,14 +1,4 @@
 ---
-
-- name: Template Consul file
-  template:
-    src: /templates/consul.sh.j2
-    dest: /opt/consul/data/consul.hcl
-    owner: root
-    group: root
-    mode: '0644'
-  notify: Started Consul
-
 - name: Started Consul
   service:
     name: consul

@@ -1,14 +1,4 @@
 ---
-
-- name: Template Nomad file
-  template:
-    src: /templates/nomad.sh.j2
-    dest: /opt/nomad/data/nomad.hcl
-    owner: root
-    group: root
-    mode: '0644'
-  notify: Started Nomad
-
 - name: Started Nomad
   service:
     name: nomad
