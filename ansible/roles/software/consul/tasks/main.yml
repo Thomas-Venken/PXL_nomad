@@ -10,5 +10,4 @@
   yum:
     name: consul
     state: present
-  notify: Started consul
-
+  notify: Template Consul file

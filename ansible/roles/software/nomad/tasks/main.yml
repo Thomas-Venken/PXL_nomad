@@ -11,5 +11,4 @@
   yum:
     name: nomad
     state: present
-  notify: Started Nomad
-
+  notify: Template Nomad file
