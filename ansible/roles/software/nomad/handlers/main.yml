@@ -9,14 +9,14 @@
 - name: enable_disable server
   lineinfile:
     path: /etc/nomad.d/nomad.hcl
-    regexp: '?enabled = true'
-    line: enabled = {{server_enable_disable}}
+    regexp: 'enabled'
+    replace: 'enabled = {{server_enable_disable}}'
   notify: Change servers in client
 
 - name: Change servers in client
   lineinfile:
     path: /etc/nomad.d/nomad.hcl
-    regexp: '127.0.0.1'
+    regexp: '127.0.0.1' 
     line: servers = ["{{server_ip}}:4646"]
   notify: Add log_level
 
