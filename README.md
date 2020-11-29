@@ -153,7 +153,6 @@ Nomad:
 ```
 ```bash
 ---
-
 - name: Add Nomad repository
   yum_repository:
     name: nomad
@@ -179,13 +178,13 @@ Nomad:
   notify: Started Nomad
 ```
 Docker:
-´´´bash
+```bash
 ---
 - name: started docker-ce
   service:
     name: docker.service
     state: started
-´´´
+```
 ```bash
 ---
 - name: add docker-ce repository
