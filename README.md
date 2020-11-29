@@ -122,10 +122,12 @@ Nomad:
 
 Consul
 ```bash
+
 ```
 
 Docker
 ´´´bash
+
 ´´´
 
 ## Verdeling van taken
