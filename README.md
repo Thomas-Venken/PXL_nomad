@@ -100,33 +100,33 @@ Per VM worden de volgende roles geinstalleerd:
     - role: software/docker
   
 ```
-Wanneer deze dan zijn geinstalleerd, dan wordt vervolgens per VM een individueel script gerunt. Hierin wordt dan de server/client in geconfigureerd.
-Op deze server/clients worden beide nomad en consul gezet en gerunt.
+```ansible
+---
+- name: playbook for client vm
+  hosts: clients
+  become: yes
 
-Server script:
-```bash
-```
-Client script:
-```bash
-```
-De 'X' in het bovenstaande script staat voor het nummer/IP-address van de client.
+  roles:
+    - role: software/nomad
+    - role: software/consul
+    - role: software/docker
 
-Uiteindelijk starten we manueel een job op via het volgende commando:
-```bash
-    $ nomad job run -address=http://192.168.2.15:4646 /opt/nomad/webserver.nomad
 ```
 
-In het volgende gedeelte staan de screenshots van de werking.
+Beide de roles Nomad, Consul en Docker voeren de volgende handlers.yml en task.yml
 
-## Webinterface en resultaat
-![Nomad Server](/screenshots/Nomad-Server.png)
-![Nomad Clients](/screenshots/Nomad-Clients.png)
-![Consul](/screenshots/Consul.png)
-![Consul Server](/screenshots/Consul-Server.png)
-![Consul Clients](/screenshots/Consul-Clients.png)
-![Consul Server & Clients](/screenshots/Consul-Nomad-Server-en-Clients.png)
-![Nomad Job](/screenshots/Nomad-Job.png)
-![Nomad Job Allocation](/screenshots/Nomad-Job-Allocation.png)
+Nomad:
+```bash
+
+```
+
+Consul
+```bash
+```
+
+Docker
+´´´bash
+´´´
 
 ## Verdeling van taken
 Thomas heeft in essentie de barebones van het script geschreven. Daarna hebben we voor de rest
