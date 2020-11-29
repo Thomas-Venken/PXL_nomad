@@ -79,86 +79,25 @@ end
 ```
 De Vagrantfile behandelt de volgende delen:
 * Statische IP's toevoegen aan elke machine.
-* Runnen van individuele en algemene scripts (Zie volgende deel).
-* Opstarten van de nomad server en clients.
-* Opstarten van de consul server en clients.
+* Runnen van Ansible playbooks op alle machines
 * Opstarten van de interface voor Nomad.
 * Opstarten van de interface voor Consul.
 
-Per VM wordt er het install.sh script gerunt. Deze installeert:
-* Eventuele Linux updates
+Per VM worden de volgende roles geinstalleerd:
 * Docker
 * Nomad
 * Consul
 
 ```bash
-#!/bin/bash
-
-availableUpdates=$(sudo yum -q check-update | wc -l)
-
-if [ $availableUpdates -gt 0 ]; then
-    sudo yum upgrade -y;
-else
-    echo $availableUpdates "updates available"
-fi
-
-sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
-sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-sudo yum -y install docker-ce
-sudo yum -y install nomad
-sudo yum -y install consul
-sudo systemctl enable docker
-sudo systemctl start docker
-sudo sed -i '$ a export NOMAD_ADDR=http://192.168.2.15:4646' .bashrc
 ```
 Wanneer deze dan zijn geinstalleerd, dan wordt vervolgens per VM een individueel script gerunt. Hierin wordt dan de server/client in geconfigureerd.
 Op deze server/clients worden beide nomad en consul gezet en gerunt.
 
 Server script:
 ```bash
-#!/bin/bash
-
-sudo mkdir /opt/nomad/server > /dev/null 2>&1
-sed -i '2s/^/log_level = "DEBUG"/' /etc/nomad.d/nomad.hcl
-sed -i 's/0.0.0.0/192.168.2.15/g' /etc/nomad.d/nomad.hcl
-sed -i 's/\/data/\/server/g' /etc/nomad.d/nomad.hcl
-sed -i 's/127.0.0.1/192.168.2.15/g' /etc/nomad.d/nomad.hcl
-sudo systemctl start nomad.service
-sed -i 's/#server = true/server = true/g' /etc/consul.d/consul.hcl
-sed -i 's/#bootstrap_expect=3/bootstrap_expect=1/g' /etc/consul.d/consul.hcl
-sed -i '$ a bind_addr = "192.168.2.15"' /etc/consul.d/consul.hcl
-sudo systemctl start consul.service
 ```
 Client script:
 ```bash
-#!/bin/bash
-sudo mkdir /opt/nomad/clientX > /dev/null 2>&1
-sudo echo "log_level = \"DEBUG\"
-data_dir = \"/opt/nomad/clientX\"
-name = \"client1-nomad\"
-bind_addr = \"192.168.2.X\"
-client {
-    enabled = true
-    servers = [\"192.168.2.15:4647\"]
-	network_interface=\"eth1\"
-}
-ports {
-    http = 5656
-}
-plugin \"docker\" {
-  config {
-    gc {
-      dangling_containers {
-        enabled = false
-      }
-    }
-  }
-}" > /etc/nomad.d/nomad.hcl
-sudo systemctl start nomad.service
-sed -i '$ a retry_join = ["192.168.2.15"]' /etc/consul.d/consul.hcl
-sed -i '$ a bind_addr = "192.168.2.X"' /etc/consul.d/consul.hcl
-sed -i '$ a node_name = "client1-consul"' /etc/consul.d/consul.hcl
-sudo systemctl start consul.service
 ```
 De 'X' in het bovenstaande script staat voor het nummer/IP-address van de client.
 
