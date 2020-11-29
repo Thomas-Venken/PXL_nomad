@@ -201,6 +201,44 @@ Docker:
     state: present
   notify: started docker-ce
 ```
+De Nomad en Consul tasks.yml's importeren de volgende Jinja scripten
+
+Consul:
+```bash
+# {{ ansible_managed }}
+
+# Full configuration options can be found at https://www.consul.io/docs/agent/options.html
+
+data_dir = "/opt/consul"
+client_addr = "0.0.0.0"
+ui = true
+server = {{consul_server_enable_disable}}
+bootstrap_expect={{consul_amount_bootstrap}}
+retry_join = ["{{server_ip}}"]
+bind_addr = "{{consul_bind_addr}}"
+node_name = "{{node_name}}"
+```
+Nomad:
+```bash
+# {{ ansible_managed }}
+
+# Full configuration options can be found at https://www.nomadproject.io/docs/configuration
+
+log_level = "DEBUG"
+data_dir = "/opt/nomad/{{inventory_hostname}}"
+bind_addr = "{{nomad_bind_addr}}"
+
+server {
+  enabled = {{nomad_server_enable_disable}}
+  bootstrap_expect = 1
+}
+
+client {
+  enabled = true
+  servers = ["{{server_ip}}:{{nomad_server_port}}"]
+}
+```
+
 ## Verdeling van taken
 Thomas heeft in essentie de barebones van het script geschreven. Daarna hebben we voor de rest
 samen dit script aangepast en uiteindelijk opgesplitst in meerdere kleinere scripts. Ook hebben we het grootste
