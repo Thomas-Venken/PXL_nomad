@@ -1,17 +1,12 @@
 # {{ ansible_managed }}
 
-{% if server_enable_disable is true %}
+# Full configuration options can be found at https://www.consul.io/docs/agent/options.html
 
-server = {{ server_enable_disable }}
-
-bootstrap_expect = {{ bootstrap_expect }}
-
-bind_addr = {{ bind_addr }}
-
-{% else %}
-
-retry_join = ["{{ server_ip }}"]
-
-bind_addr = "{{ bind_addr }}"
-
-node_name = "{{ node_name }}"
+data_dir = "/opt/consul"
+client_addr = "0.0.0.0"
+ui = true
+server = {{consul_server_enable_disable}}
+bootstrap_expect={{consul_amount_bootstrap}}
+retry_join = ["{{server_ip}}"]
+bind_addr = "{{consul_bind_addr}}"
+node_name = "{{node_name}}"

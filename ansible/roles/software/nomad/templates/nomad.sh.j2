@@ -1,7 +1,17 @@
 # {{ ansible_managed }}
 
-{% if server_ip is true %}
+# Full configuration options can be found at https://www.nomadproject.io/docs/configuration
 
 log_level = "DEBUG"
+data_dir = "/opt/nomad/{{inventory_hostname}}"
+bind_addr = "{{nomad_bind_addr}}"
 
-{% else %}
+server {
+  enabled = {{nomad_server_enable_disable}}
+  bootstrap_expect = 1
+}
+
+client {
+  enabled = true
+  servers = ["{{server_ip}}:{{nomad_server_port}}"]
+}
