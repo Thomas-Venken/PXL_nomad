@@ -1,4 +1,4 @@
-server_enable_disable: "true"
+server_enable_disable: true
 amount_bootstrap: 1
 bind_addr: "{{ansible_eth1.ipv4.address}}"
 server_ip : "192.168.2.15"
