@@ -88,7 +88,17 @@ Per VM worden de volgende roles geinstalleerd:
 * Nomad
 * Consul
 
-```bash
+```ansible
+---
+- name: playbook for server vm
+  hosts: servers
+  become: yes
+
+  roles:
+    - role: software/nomad
+    - role: software/consul
+    - role: software/docker
+  
 ```
 Wanneer deze dan zijn geinstalleerd, dan wordt vervolgens per VM een individueel script gerunt. Hierin wordt dan de server/client in geconfigureerd.
 Op deze server/clients worden beide nomad en consul gezet en gerunt.
