@@ -19,30 +19,7 @@ Deze server en clients worden aan de hand van de volgende vagrant file opgestart
 VAGRANTFILE_API_VERSION = "2"
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
-  config.vm.define "server" do |subconfig|
-    subconfig.vm.box = "centos/7"
-    subconfig.vm.hostname = "server"
-	subconfig.vm.network "private_network", ip: "192.168.2.15"
-	subconfig.vm.network "forwarded_port", guest: 4646, host: 4646, auto_correct: true, host_ip: "127.0.0.1"
-	subconfig.vm.network "forwarded_port", guest: 8500, host: 8500, auto_correct: true, host_ip: "127.0.0.1"
-    subconfig.vm.provision "shell", path: "scripts/server.sh"
-	subconfig.vm.provision "shell", path: "scripts/webserver.sh"
-  end
-
-  config.vm.define "client1" do |subconfig|
-    subconfig.vm.box = "centos/7"
-    subconfig.vm.hostname = "client1"
-	subconfig.vm.network "private_network", ip: "192.168.2.16"
-    subconfig.vm.provision "shell", path: "scripts/client1.sh"
-
-  end
-
-  config.vm.define "client2" do |subconfig|
-    subconfig.vm.box = "centos/7"
-    subconfig.vm.hostname = "client2"
-	subconfig.vm.network "private_network", ip: "192.168.2.17"
-    subconfig.vm.provision "shell", path: "scripts/client2.sh"
-  end
+  config.vbguest.auto_update = false
 
   config.vm.provider :virtualbox do |virtualbox, override|
     virtualbox.customize ["modifyvm", :id, "--memory", 2048]
@@ -52,112 +29,106 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     override.vm.box = "visibilityspots/centos-7.x-minimal"
   end
 
-  config.vm.provision "shell", path: "scripts/install.sh"
+  config.vm.define "server" do |server|
+    server.vm.box = "centos/7"
+    server.vm.hostname = "server"
+	  server.vm.network "private_network", ip: "192.168.2.15"
+	  server.vm.network "forwarded_port", guest: 4646, host: 4646, auto_correct: true, host_ip: "127.0.0.1"
+    server.vm.network "forwarded_port", guest: 8500, host: 8500, auto_correct: true, host_ip: "127.0.0.1"
 
+    server.vm.provision "ansible_local" do |ansible|
+      ansible.config_file = "ansible/ansible.cfg"
+      ansible.playbook = "ansible/plays/server.yml"
+      ansible.groups = {
+        "servers" => ["server"],
+      }
+	  ansible.host_vars = {}
+    end
+  end
+
+  config.vm.define "client1" do |client1|
+    client1.vm.box = "centos/7"
+    client1.vm.hostname = "client1"
+	  client1.vm.network "private_network", ip: "192.168.2.16"
+    
+    client1.vm.provision "ansible_local" do |ansible|
+      ansible.config_file = "ansible/ansible.cfg"
+      ansible.playbook = "ansible/plays/client.yml"
+      ansible.groups = {
+        "clients" => ["client1"],
+      }
+	  ansible.host_vars = {}
+    end
+  end
+
+  config.vm.define "client2" do |client2|
+    client2.vm.box = "centos/7"
+    client2.vm.hostname = "client2"
+    client2.vm.network "private_network", ip: "192.168.2.17"
+    
+    client2.vm.provision "ansible_local" do |ansible|
+      ansible.config_file = "ansible/ansible.cfg"
+      ansible.playbook = "ansible/plays/client.yml"
+      ansible.groups = {
+        "clients" => ["client2"],
+      }
+	  ansible.host_vars = {}
+    end
+  end  
 end
-
 ```
 De Vagrantfile behandelt de volgende delen:
 * Statische IP's toevoegen aan elke machine.
-* Runnen van individuele en algemene scripts (Zie volgende deel).
-* Opstarten van de nomad server en clients.
-* Opstarten van de consul server en clients.
+* Runnen van Ansible playbooks op alle machines
 * Opstarten van de interface voor Nomad.
 * Opstarten van de interface voor Consul.
 
-Per VM wordt er het install.sh script gerunt. Deze installeert:
-* Eventuele Linux updates
+Per VM worden de volgende roles geinstalleerd:
 * Docker
 * Nomad
 * Consul
 
-```bash
-#!/bin/bash
+```ansible
+---
+- name: playbook for server vm
+  hosts: servers
+  become: yes
 
-availableUpdates=$(sudo yum -q check-update | wc -l)
-
-if [ $availableUpdates -gt 0 ]; then
-    sudo yum upgrade -y;
-else
-    echo $availableUpdates "updates available"
-fi
-
-sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
-sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-sudo yum -y install docker-ce
-sudo yum -y install nomad
-sudo yum -y install consul
-sudo systemctl enable docker
-sudo systemctl start docker
-sudo sed -i '$ a export NOMAD_ADDR=http://192.168.2.15:4646' .bashrc
+  roles:
+    - role: software/nomad
+    - role: software/consul
+    - role: software/docker
+  
 ```
-Wanneer deze dan zijn geinstalleerd, dan wordt vervolgens per VM een individueel script gerunt. Hierin wordt dan de server/client in geconfigureerd.
-Op deze server/clients worden beide nomad en consul gezet en gerunt.
+```ansible
+---
+- name: playbook for client vm
+  hosts: clients
+  become: yes
 
-Server script:
-```bash
-#!/bin/bash
+  roles:
+    - role: software/nomad
+    - role: software/consul
+    - role: software/docker
 
-sudo mkdir /opt/nomad/server > /dev/null 2>&1
-sed -i '2s/^/log_level = "DEBUG"/' /etc/nomad.d/nomad.hcl
-sed -i 's/0.0.0.0/192.168.2.15/g' /etc/nomad.d/nomad.hcl
-sed -i 's/\/data/\/server/g' /etc/nomad.d/nomad.hcl
-sed -i 's/127.0.0.1/192.168.2.15/g' /etc/nomad.d/nomad.hcl
-sudo systemctl start nomad.service
-sed -i 's/#server = true/server = true/g' /etc/consul.d/consul.hcl
-sed -i 's/#bootstrap_expect=3/bootstrap_expect=1/g' /etc/consul.d/consul.hcl
-sed -i '$ a bind_addr = "192.168.2.15"' /etc/consul.d/consul.hcl
-sudo systemctl start consul.service
-```
-Client script:
-```bash
-#!/bin/bash
-sudo mkdir /opt/nomad/clientX > /dev/null 2>&1
-sudo echo "log_level = \"DEBUG\"
-data_dir = \"/opt/nomad/clientX\"
-name = \"client1-nomad\"
-bind_addr = \"192.168.2.X\"
-client {
-    enabled = true
-    servers = [\"192.168.2.15:4647\"]
-	network_interface=\"eth1\"
-}
-ports {
-    http = 5656
-}
-plugin \"docker\" {
-  config {
-    gc {
-      dangling_containers {
-        enabled = false
-      }
-    }
-  }
-}" > /etc/nomad.d/nomad.hcl
-sudo systemctl start nomad.service
-sed -i '$ a retry_join = ["192.168.2.15"]' /etc/consul.d/consul.hcl
-sed -i '$ a bind_addr = "192.168.2.X"' /etc/consul.d/consul.hcl
-sed -i '$ a node_name = "client1-consul"' /etc/consul.d/consul.hcl
-sudo systemctl start consul.service
-```
-De 'X' in het bovenstaande script staat voor het nummer/IP-address van de client.
-
-Uiteindelijk starten we manueel een job op via het volgende commando:
-```bash
-    $ nomad job run -address=http://192.168.2.15:4646 /opt/nomad/webserver.nomad
 ```
 
-In het volgende gedeelte staan de screenshots van de werking.
+Beide de roles Nomad, Consul en Docker voeren de volgende handlers.yml en task.yml
 
-## Webinterface en resultaat
-![Nomad Server](/screenshots/Nomad-Server.png)
-![Nomad Clients](/screenshots/Nomad-Clients.png)
-![Consul](/screenshots/Consul.png)
-![Consul Server](/screenshots/Consul-Server.png)
-![Consul Clients](/screenshots/Consul-Clients.png)
-![Consul Server & Clients](/screenshots/Consul-Nomad-Server-en-Clients.png)
-![Nomad Job](/screenshots/Nomad-Job.png)
-![Nomad Job Allocation](/screenshots/Nomad-Job-Allocation.png)
+Nomad:
+```bash
+
+```
+
+Consul
+```bash
+
+```
+
+Docker
+´´´bash
+
+´´´
 
 ## Verdeling van taken
 Thomas heeft in essentie de barebones van het script geschreven. Daarna hebben we voor de rest
