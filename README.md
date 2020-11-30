@@ -239,6 +239,5 @@ client {
 ```
 
 ## Verdeling van taken
-Thomas heeft in essentie de barebones van het script geschreven. Daarna hebben we voor de rest
-samen dit script aangepast en uiteindelijk opgesplitst in meerdere kleinere scripts. Ook hebben we het grootste
-deel van het 'bugfixen' samen gedaan. De README.md is geschreven door Jens.
+We hebben beide vanalles gedaan en ook delen samen gedaan. Er zijn geen specifiek delen gedaan door iemand specifiek. 
+Beide hebben we aan alles wat gewerkt.
