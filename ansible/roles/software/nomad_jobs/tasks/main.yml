@@ -1,12 +1,33 @@
 ---
-- name: Export IP to .bashrc
-  shell: sudo sed -i '$ a export NOMAD_ADDR=http://{{server_ip}}:{{nomad_server_port}}' .bashrc
+
+- name: Export ip to bashrc
+  shell: sed -i '$ a export NOMAD_ADDR=http://{{server_ip}}:{{nomad_server_port}}' /home/vagrant/.bashrc
 
 - name: Prometheus template
   template: 
     src: jobs.sh.j2
     dest: /opt/nomad/prometheus.hcl
   vars:
-    myTemplateVariable: File1
+    job_name: prometheus
+    job_image: prom/prometheus:latest
+    job_port: 9090
+
+- name: Grafana template
+  template: 
+    src: jobs.sh.j2
+    dest: /opt/nomad/grafana.hcl
+  vars:
+    job_name: grafana
+    job_image: grafana/grafana:latest
+    job_port: 3000
+
+- name: Alertmanager template
+  template: 
+    src: jobs.sh.j2
+    dest: /opt/nomad/alertmanager.hcl
+  vars:
+    job_name: alertmanager
+    job_image: prom/alertmanager:latest
+    job_port: 9093
 
 

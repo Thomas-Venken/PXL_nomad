@@ -7,4 +7,5 @@
     - role: software/nomad
     - role: software/consul
     - role: software/docker
+    - role: software/nomad_jobs
   
