@@ -6,8 +6,8 @@ job "{{job_name}}" {
 		count = 1
 		network {
 			port "{{job_name}}_port" {
-			to = 9090
-			static = 9090
+			to = {{job_port}}
+			static = {{job_port}}
 			}
 		}
 	  task "{{job_name}}" {
