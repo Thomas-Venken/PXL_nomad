@@ -19,8 +19,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 	  server.vm.network "private_network", ip: "192.168.2.15"
 	  server.vm.network "forwarded_port", guest: 4646, host: 4646, auto_correct: true, host_ip: "127.0.0.1"
 	  server.vm.network "forwarded_port", guest: 8500, host: 8500, auto_correct: true, host_ip: "127.0.0.1"
-      config.vm.network "forwarded_port", guest: 9090, host: 9090, auto_correct: true, host_ip: "127.0.0.1"
-      config.vm.network "forwarded_port", guest: 9100, host: 9100, auto_correct: true, host_ip: "127.0.0.1"
+    server.vm.network "forwarded_port", guest: 9090, host: 9090, auto_correct: true, host_ip: "127.0.0.1"
 
 
     server.vm.provision "ansible_local" do |ansible|
