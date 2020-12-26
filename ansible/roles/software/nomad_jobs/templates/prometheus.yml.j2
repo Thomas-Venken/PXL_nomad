@@ -1,0 +1,30 @@
+global:
+  scrape_interval: 15s
+  scrape_timeout: 10s
+  evaluation_interval: 15s
+alerting:
+  alertmanagers:
+  - scheme: http
+    timeout: 10s
+    api_version: v1
+    static_configs:
+    - targets: []
+scrape_configs:
+- job_name: prometheus
+  honor_timestamps: true
+  scrape_interval: 15s
+  scrape_timeout: 10s
+  metrics_path: /metrics
+  scheme: http
+  static_configs:
+  - targets:
+    - localhost:9090
+  consul_sd_configs:
+    - server: '192.168.2.15:8500'
+        services: []
+  relabel_configs:
+    - source_labels: [__meta_consul_tags]
+      regex: .*,metrics,.*
+      action: keep
+    - source_labels: [__meta_consul_service]
+      target_label: job
