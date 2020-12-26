@@ -1,7 +1,5 @@
 ---
-
-<<<<<<< HEAD
-- name: Export ip to bashrc
+- name: Export IP to .bashrc
   shell: sudo sed -i '$ a export NOMAD_ADDR=http://{{server_ip}}:{{nomad_server_port}}' .bashrc
 
 - name: Prometheus template
@@ -10,9 +8,5 @@
     dest: /opt/nomad/prometheus.hcl
   vars:
     myTemplateVariable: File1
-=======
-- name: Export IP to .bashrc
-  shell: sudo sed -i '$ a export NOMAD_ADDR=http://192.168.2.15:4646' .bashrc
->>>>>>> a8d10b9abbb2696353f20ed6abd7244ee3db0200
 
 
