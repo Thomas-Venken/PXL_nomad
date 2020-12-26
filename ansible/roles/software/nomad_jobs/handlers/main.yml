@@ -1,0 +1,9 @@
+---
+- name: Start prometheus
+  shell: nomad job run /opt/nomad/prometheus.hcl
+
+- name: Start grafana
+  shell: nomad job run /opt/nomad/grafana.hcl
+
+- name: Start alertmanager
+  shell: nomad job run /opt/nomad/alertmanager.hcl
