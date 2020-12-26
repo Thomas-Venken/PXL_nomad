@@ -1,0 +1,34 @@
+---
+- name: Started Nomad
+  service:
+    name: nomad
+    state: started
+
+# - name: Change IP of server
+#   lineinfile:
+#     path: /etc/nomad.d/nomad.hcl
+#     regexp: '0.0.0.0'
+#     line: bind_addr = "{{bind_addr}}"
+#   notify: enable_disable server
+
+# - name: enable_disable server
+#   lineinfile:
+#     path: /etc/nomad.d/nomad.hcl
+#     regexp: '?enabled = true'
+#     line: enabled = {{server_enable_disable}}
+#   notify: Change servers in client
+
+# - name: Change servers in client
+#   lineinfile:
+#     path: /etc/nomad.d/nomad.hcl
+#     regexp: '127.0.0.1'
+#     line: servers = ["{{server_ip}}:4646"]
+#   notify: Add log_level
+
+# - name: Add log_level
+#   lineinfile:
+#     path: /etc/nomad.d/nomad.hcl
+#     line: log_level = "DEBUG"
+#     insertbefore: 'bind_addr'
+#     create: yes
+#   notify: started nomad

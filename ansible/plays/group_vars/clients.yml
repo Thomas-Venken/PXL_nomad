@@ -1,0 +1,7 @@
+nomad_server_enable_disable: "false"
+nomad_bind_addr: "{{ansible_eth1.ipv4.address}}"
+consul_bind_addr: "{{ansible_eth1.ipv4.address}}"
+consul_amount_bootstrap: 0
+consul_server_enable_disable: "false"
+server_ip : "192.168.2.15"
+nomad_server_port: 4647
