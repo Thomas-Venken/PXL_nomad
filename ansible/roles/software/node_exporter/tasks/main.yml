@@ -4,3 +4,7 @@
   uri:
     url: https://github.com/prometheus/node_exporter/releases/download/v1.0.1/node_exporter-1.0.1.linux-amd64.tar.gz
 
+- name: Node_exporter .service file
+  template: 
+    src: node_exporter.service.sh.j2
+    dest: /etc/systemd/system/node_exporter.service
