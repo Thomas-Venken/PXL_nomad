@@ -1,8 +1,4 @@
 ---
-
-- name: Export ip to bashrc
-  shell: sed -i '$ a export NOMAD_ADDR=http://{{server_ip}}:{{nomad_server_port}}' /home/vagrant/.bashrc
-
 - name: Prometheus template
   template: 
     src: prometheus.hcl.j2
