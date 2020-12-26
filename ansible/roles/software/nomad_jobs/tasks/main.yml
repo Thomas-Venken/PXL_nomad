@@ -1,5 +1,11 @@
 ---
 
+- name: Create a directory for Prometheus.yml
+  file:
+    path: /opt/prometheus
+    state: directory
+    mode: '0755'
+
 - name: Prometheus.yml template
   template: 
     src: prometheus.yml.j2
