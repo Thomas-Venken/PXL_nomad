@@ -8,7 +8,10 @@
   unarchive:
     src: node_exporter-1.0.1.linux-amd64.tar.gz
     dest: ./
-    
+
+- name: Move node_exporter
+  command: mv /node_exporter-1.0.1.linux-amd64/node_exporter /usr/local/bin/
+
 - name: Node_exporter .service file
   template: 
     src: node_exporter.service.sh.j2

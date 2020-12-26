@@ -11,6 +11,7 @@
     job_name: prometheus
     job_image: prom/prometheus:latest
     job_port: 9090
+  notify: Start prometheus
 
 - name: Grafana template
   template: 
@@ -20,6 +21,7 @@
     job_name: grafana
     job_image: grafana/grafana:latest
     job_port: 3000
+  notify: Start grafana
 
 - name: Alertmanager template
   template: 
@@ -29,5 +31,6 @@
     job_name: alertmanager
     job_image: prom/alertmanager:latest
     job_port: 9093
+  notify: Start alertmanager
 
 
