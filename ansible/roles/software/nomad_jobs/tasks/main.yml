@@ -1,8 +1,13 @@
 ---
 
 - name: Export ip to bashrc
-  shell: sudo sed -i '$ a export NOMAD_ADDR=http://192.168.2.15:4646' .bashrc
+  shell: sudo sed -i '$ a export NOMAD_ADDR=http://{{server_ip}}:{{nomad_server_port}}' .bashrc
 
-- name: Add prometheus job
-  shell: nomad run job 
+- name: Prometheus template
+  template: 
+    src: jobs.sh.j2
+    dest: /opt/nomad/prometheus.hcl
+  vars:
+    myTemplateVariable: File1
+
 
