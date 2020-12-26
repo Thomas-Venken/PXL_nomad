@@ -1,4 +1,10 @@
 ---
+
+- name: Prometheus.yml template
+  template: 
+    src: prometheus.yml.j2
+    dest: /opt/prometheus/prometheus.yml
+
 - name: Prometheus template
   template: 
     src: prometheus.hcl.j2
