@@ -5,7 +5,7 @@
 
 - name: Prometheus template
   template: 
-    src: jobs.sh.j2
+    src: prometheus.hcl.j2
     dest: /opt/nomad/prometheus.hcl
   vars:
     job_name: prometheus
@@ -15,7 +15,7 @@
 
 - name: Grafana template
   template: 
-    src: jobs.sh.j2
+    src: jobs.hcl.j2
     dest: /opt/nomad/grafana.hcl
   vars:
     job_name: grafana
@@ -25,7 +25,7 @@
 
 - name: Alertmanager template
   template: 
-    src: jobs.sh.j2
+    src: jobs.hcl.j2
     dest: /opt/nomad/alertmanager.hcl
   vars:
     job_name: alertmanager
