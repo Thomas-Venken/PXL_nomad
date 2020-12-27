@@ -15,4 +15,7 @@ client {
   enabled = true
   servers = ["{{server_ip}}:{{nomad_server_port}}"]
   network_interface = "eth1"
+  options {
+    "docker.volumes.enabled" = "true"
+  }
 }
