@@ -23,3 +23,8 @@
     src: nomad.sh.j2
     dest: /etc/nomad.d/nomad.hcl
   notify: Started Nomad
+
+- name: Restart nomad
+  service:
+    name: nomad
+    state: restarted
