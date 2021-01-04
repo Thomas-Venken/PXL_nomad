@@ -2,11 +2,15 @@ scrape_configs:
   - job_name: 'telemetry'
     consul_sd_configs:
       - server: '192.168.2.15:8500'
-        services: ['nomad', 'nomad-client']
+        services: ['nomad-client']
     relabel_configs:
       - source_labels: [__meta_consul_tags]
         regex: '(.*)http(.*)'
         action: keep
       - source_labels: [__meta_consul_service]
         target_label: job
-    metrics_path: /v1/metrics
+      - source_labels: [__address__]
+        action: replace
+        regex: ([^:]+):.*
+        replacement: $1:9100
+        target_label: __address__
