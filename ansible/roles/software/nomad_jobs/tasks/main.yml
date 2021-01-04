@@ -41,4 +41,12 @@
     job_port: 9093
   notify: Start alertmanager
 
-
+- name: Nginx template
+  template: 
+    src: jobs.hcl.sh.j2
+    dest: /opt/nomad/nginx.hcl
+  vars:
+    job_name: nginx
+    job_image: nginx:latest
+    job_port: 80
+  notify: Start nginx

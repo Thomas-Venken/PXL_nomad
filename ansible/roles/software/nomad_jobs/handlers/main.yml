@@ -7,3 +7,6 @@
 
 - name: Start alertmanager
   shell: nomad job run -address=http://{{server_ip}}:4646 /opt/nomad/alertmanager.hcl || exit 0
+
+- name: Start nginx
+  shell: nomad job run -address=http://{{server_ip}}:4646 /opt/nomad/nginx.hcl || exit 0
