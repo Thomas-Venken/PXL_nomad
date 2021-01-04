@@ -24,6 +24,7 @@ job "{{job_name}}" {
 		}
 		service {
 			name = "{{job_name}}"
+			tags = ["metrics"]
 		}
 	  }
 	}
