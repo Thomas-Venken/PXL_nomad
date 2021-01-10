@@ -33,4 +33,11 @@ scrape_configs:
         action: replace                       
         regex: ([^:]+):.*                     
         replacement: $1:9100                  
-        target_label: __address__             
+        target_label: __address__
+  - job_name: 'webserver'
+
+    consul_sd_configs:
+    - server: '192.168.2.15:8500'
+      services: ['webserver']
+
+    metrics_path: /metrics             
