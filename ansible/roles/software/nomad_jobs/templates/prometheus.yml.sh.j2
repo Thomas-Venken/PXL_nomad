@@ -18,7 +18,8 @@ scrape_configs:
     scrape_interval: 5s                       
     metrics_path: /v1/metrics                 
     params:                                   
-      format: ['prometheus']                  
+      format: ['prometheus']   
+
   - job_name: 'node_exporter'                 
     consul_sd_configs:                        
       - server: '192.168.2.15:8500'           
@@ -34,6 +35,7 @@ scrape_configs:
         regex: ([^:]+):.*                     
         replacement: $1:9100                  
         target_label: __address__
+
   - job_name: 'webserver'
 
     consul_sd_configs:
@@ -41,12 +43,27 @@ scrape_configs:
       services: ['webserver']
 
     metrics_path: /metrics
+  
+  - job_name: 'alertmanager'
+
+    consul_sd_configs:
+    - server: '192.168.2.15:8500'
+      services: ['alertmanager']
+
+    relabel_configs:
+    - source_labels: [__meta_consul_service]
+      target_label: job
+
+    scrape_interval: 5s
+    metrics_path: /metrics
+    params:
+      format: ['prometheus']
 
 alerting:
  alertmanagers:
  - consul_sd_configs:
    - server: '192.168.2.15:8500'
      services: ['alertmanager']
-     
+
 rule_files:
  - rules.yml           

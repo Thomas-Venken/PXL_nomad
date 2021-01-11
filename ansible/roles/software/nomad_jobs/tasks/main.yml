@@ -6,6 +6,17 @@
     state: directory
     mode: '0755'
 
+- name: Create a directory for alertmanager rules
+  file:
+    path: /opt/alertmanager
+    state: directory
+    mode: '0755'
+
+- name: alertmanager infrastructure rules template
+  template: 
+    src: infrastructure.rules.j2
+    dest: /opt/alertmanager/infrastructure.rules
+
 - name: Prometheus.yml template
   template: 
     src: prometheus.yml.sh.j2
@@ -23,7 +34,7 @@
 
 - name: Grafana template
   template: 
-    src: jobs.hcl.sh.j2
+    src: grafana.hcl.j2
     dest: /opt/nomad/grafana.hcl
   vars:
     job_name: grafana
@@ -33,7 +44,7 @@
 
 - name: Alertmanager template
   template: 
-    src: jobs.hcl.sh.j2
+    src: alertmanager.hcl.j2
     dest: /opt/nomad/alertmanager.hcl
   vars:
     job_name: alertmanager
