@@ -415,3 +415,4 @@ job "webserver" {
 ```
 
 ## Verdeling van taken
+We hebben voor zo goed als alles samengewerkt.
