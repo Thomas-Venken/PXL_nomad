@@ -122,7 +122,7 @@ Voor de clients zijn deze geinstalleerd
 ```
 
 De Nomad, Consul en Docker roles zijn in de vorige opdrachten al aangehaald. De volgende
-zijn de nieuwe roles namelijk:
+zijn de nieuwe roles, namelijk:
 
 Node_exporter (Tasks)
 ```ansible
@@ -153,7 +153,7 @@ Node_exporter (Tasks)
 ```
 
 Node_exporter (Handlers)
-```
+```ansible
 ---
 - name: Started Node_exporter
   service:
@@ -161,24 +161,8 @@ Node_exporter (Handlers)
     state: started
 ```
 
-Node_exporter (Template)
-```ansible
-[Unit]
-Description=Node Exporter
-After=network.target
- 
-[Service]
-User=vagrant
-Group=vagrant
-Type=simple
-ExecStart=/usr/local/bin/node_exporter
- 
-[Install]
-WantedBy=multi-user.target
-```
-
 Nomad_jobs (Tasks)
-```
+```ansible
 ---
 - name: Create a directory for Prometheus.yml
   file:
@@ -227,4 +211,207 @@ Nomad_jobs (Tasks)
     dest: /opt/nomad/webserver.hcl
   notify: Start webserver
 ```
+
+Nomad_jobs (Handlers)
+```ansible
+---
+- name: Start prometheus
+  shell: nomad job run -address=http://{{server_ip}}:4646 /opt/nomad/prometheus.hcl || exit 0
+
+- name: Start grafana
+  shell: nomad job run -address=http://{{server_ip}}:4646 /opt/nomad/grafana.hcl || exit 0
+
+- name: Start alertmanager
+  shell: nomad job run -address=http://{{server_ip}}:4646 /opt/nomad/alertmanager.hcl || exit 0
+
+- name: Start webserver
+  shell: nomad job run -address=http://{{server_ip}}:4646 /opt/nomad/webserver.hcl || exit 0
+```
+
+Ook hebben we gebruik gemaakt van templates. De templates van toepassing zijn:
+
+Node_exporter (Service)
+```
+[Unit]
+Description=Node Exporter
+After=network.target
+ 
+[Service]
+User=vagrant
+Group=vagrant
+Type=simple
+ExecStart=/usr/local/bin/node_exporter
+ 
+[Install]
+WantedBy=multi-user.target
+```
+
+Nomad_jobs (Algemene HCL jobs)
+```ansible
+job "{{job_name}}" {
+	datacenters = ["dc1"] 
+	type = "service"
+
+	group "{{job_name}}" {
+		count = 1
+		network {
+			port "{{job_name}}_port" {
+			to = {{job_port}}
+			static = {{job_port}}
+			}
+		}
+	  task "{{job_name}}" {
+		driver = "docker"
+		config {
+			image = "{{job_image}}"
+			ports = ["{{job_name}}_port"]
+			logging {
+				type = "journald"
+				config {
+					tag = "{{job_name}}"
+				}
+			}
+		}
+		service {
+			name = "{{job_name}}"
+			tags = ["metrics"]
+		}
+	  }
+	}
+}
+```
+
+Nomad_jobs (Prometheus Job HCL)
+```ansible
+job "{{job_name}}" {
+	datacenters = ["dc1"] 
+	type = "service"
+
+	group "{{job_name}}" {
+		count = 1
+		network {
+			port "{{job_name}}_port" {
+			to = {{job_port}}
+			static = {{job_port}}
+			}
+		}
+	  task "{{job_name}}" {
+		driver = "docker"
+		config {
+			image = "{{job_image}}"
+			ports = ["{{job_name}}_port"]
+			logging {
+				type = "journald"
+				config {
+					tag = "{{job_name}}"
+				}
+			}
+        volumes = [
+          "/opt/prometheus/:/etc/prometheus/"
+        ]
+        args = [
+          "--config.file=/etc/prometheus/prometheus.yml",
+          "--storage.tsdb.path=/prometheus",
+          "--web.console.libraries=/usr/share/prometheus/console_libraries",
+          "--web.console.templates=/usr/share/prometheus/consoles",
+          "--web.enable-admin-api"
+        ]
+		}
+		service {
+			name = "{{job_name}}"
+		}
+	  }
+	}
+}
+```
+
+Nomad_jobs (Prometheus.yml)
+```
+global:                                       
+  scrape_interval:     5s                     
+  evaluation_interval: 5s                     
+                                              
+scrape_configs:                               
+                                              
+  - job_name: 'nomad_metrics'                 
+                                              
+    consul_sd_configs:                        
+    - server: '192.168.2.15:8500'             
+      services: ['nomad-client', 'nomad']     
+                                              
+    relabel_configs:                          
+    - source_labels: ['__meta_consul_tags']   
+      regex: '(.*)http(.*)'                   
+      action: keep                            
+                                              
+    scrape_interval: 5s                       
+    metrics_path: /v1/metrics                 
+    params:                                   
+      format: ['prometheus']                  
+  - job_name: 'node_exporter'                 
+    consul_sd_configs:                        
+      - server: '192.168.2.15:8500'           
+        services: ['nomad-client']            
+    relabel_configs:                          
+      - source_labels: [__meta_consul_tags]   
+        regex: '(.*)http(.*)'                 
+        action: keep                          
+      - source_labels: [__meta_consul_service]
+        target_label: job                     
+      - source_labels: [__address__]          
+        action: replace                       
+        regex: ([^:]+):.*                     
+        replacement: $1:9100                  
+        target_label: __address__
+  - job_name: 'webserver'
+
+    consul_sd_configs:
+    - server: '192.168.2.15:8500'
+      services: ['webserver']
+
+    metrics_path: /metrics
+```
+
+Nomad_jobs (Webserver voor Prometheus metrics job)
+```ansible
+job "webserver" {
+  datacenters = ["dc1"]
+
+  group "webserver" {
+    task "server" {
+      driver = "docker"
+      config {
+        image = "hashicorp/demo-prometheus-instrumentation:latest"
+      }
+
+      resources {
+        cpu = 500
+        memory = 256
+        network {
+          mbits = 10
+          port  "http"{}
+        }
+      }
+
+      service {
+        name = "webserver"
+        port = "http"
+
+        tags = [
+          "testweb",
+          "urlprefix-/webserver strip=/webserver",
+        ]
+
+        check {
+          type     = "http"
+          path     = "/"
+          interval = "2s"
+          timeout  = "2s"
+        }
+      }
+    }
+  }
+}
+```
+
 ## Verdeling van taken
