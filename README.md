@@ -121,4 +121,110 @@ Voor de clients zijn deze geinstalleerd
 
 ```
 
+De Nomad, Consul en Docker roles zijn in de vorige opdrachten al aangehaald. De volgende
+zijn de nieuwe roles namelijk:
+
+Node_exporter (Tasks)
+```ansible
+---
+- name: Download node_exporter
+  get_url:
+    url: https://github.com/prometheus/node_exporter/releases/download/v1.0.1/node_exporter-1.0.1.linux-amd64.tar.gz
+    dest: /home/vagrant
+    mode: '0776'
+    
+- name: Extract node_exporter
+  unarchive:
+    src: /home/vagrant/node_exporter-1.0.1.linux-amd64.tar.gz
+    dest: /home/vagrant
+
+- name: Move node_exporter
+  command: mv /home/vagrant/node_exporter-1.0.1.linux-amd64/node_exporter /usr/local/bin/
+
+- name: Node_exporter .service file
+  template: 
+    src: node_exporter.service.sh.j2
+    dest: /etc/systemd/system/node_exporter.service
+
+- name: Start node_exporter
+  service:
+    name: node_exporter
+    state: started
+```
+
+Node_exporter (Handlers)
+```
+---
+- name: Started Node_exporter
+  service:
+    name: node_exporter
+    state: started
+```
+
+Node_exporter (Template)
+```ansible
+[Unit]
+Description=Node Exporter
+After=network.target
+ 
+[Service]
+User=vagrant
+Group=vagrant
+Type=simple
+ExecStart=/usr/local/bin/node_exporter
+ 
+[Install]
+WantedBy=multi-user.target
+```
+
+Nomad_jobs (Tasks)
+```
+---
+- name: Create a directory for Prometheus.yml
+  file:
+    path: /opt/prometheus
+    state: directory
+    mode: '0755'
+
+- name: Prometheus.yml template
+  template: 
+    src: prometheus.yml.sh.j2
+    dest: /opt/prometheus/prometheus.yml
+
+- name: Prometheus template
+  template: 
+    src: prometheus.hcl.sh.j2
+    dest: /opt/nomad/prometheus.hcl
+  vars:
+    job_name: prometheus
+    job_image: prom/prometheus:latest
+    job_port: 9090
+  notify: Start prometheus
+
+- name: Grafana template
+  template: 
+    src: jobs.hcl.sh.j2
+    dest: /opt/nomad/grafana.hcl
+  vars:
+    job_name: grafana
+    job_image: grafana/grafana:latest
+    job_port: 3000
+  notify: Start grafana
+
+- name: Alertmanager template
+  template: 
+    src: jobs.hcl.sh.j2
+    dest: /opt/nomad/alertmanager.hcl
+  vars:
+    job_name: alertmanager
+    job_image: prom/alertmanager:latest
+    job_port: 9093
+  notify: Start alertmanager
+
+- name: webserver template
+  template: 
+    src: webserver.hcl.j2
+    dest: /opt/nomad/webserver.hcl
+  notify: Start webserver
+```
 ## Verdeling van taken
