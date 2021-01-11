@@ -40,4 +40,13 @@ scrape_configs:
     - server: '192.168.2.15:8500'
       services: ['webserver']
 
-    metrics_path: /metrics             
+    metrics_path: /metrics
+
+alerting:
+ alertmanagers:
+ - consul_sd_configs:
+   - server: '192.168.2.15:8500'
+     services: ['alertmanager']
+     
+rule_files:
+ - rules.yml           

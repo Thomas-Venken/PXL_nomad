@@ -46,3 +46,9 @@
     src: webserver.hcl.j2
     dest: /opt/nomad/webserver.hcl
   notify: Start webserver
+
+- name: webserver template
+  template: 
+    src: rules.yml.j2
+    dest: /opt/prometheus/rules.yml
+  notify: Start webserver
