@@ -34,7 +34,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     server.vm.hostname = "server"
 	  server.vm.network "private_network", ip: "192.168.2.15"
 	  server.vm.network "forwarded_port", guest: 4646, host: 4646, auto_correct: true, host_ip: "127.0.0.1"
-    server.vm.network "forwarded_port", guest: 8500, host: 8500, auto_correct: true, host_ip: "127.0.0.1"
+	  server.vm.network "forwarded_port", guest: 8500, host: 8500, auto_correct: true, host_ip: "127.0.0.1"
+    server.vm.network "forwarded_port", guest: 9090, host: 9090, auto_correct: true, host_ip: "127.0.0.1"
 
     server.vm.provision "ansible_local" do |ansible|
       ansible.config_file = "ansible/ansible.cfg"
@@ -87,7 +88,10 @@ Per VM worden de volgende roles geinstalleerd:
 * Docker
 * Nomad
 * Consul
+* Node_exporter (Clients)
+* Nomad_jobs (Server)
 
+Voor de server zijn deze geinstalleerd
 ```ansible
 ---
 - name: playbook for server vm
@@ -98,8 +102,11 @@ Per VM worden de volgende roles geinstalleerd:
     - role: software/nomad
     - role: software/consul
     - role: software/docker
-  
+    - role: software/node_exporter
+    - role: software/nomad_jobs
 ```
+
+Voor de clients zijn deze geinstalleerd
 ```ansible
 ---
 - name: playbook for client vm
@@ -110,134 +117,302 @@ Per VM worden de volgende roles geinstalleerd:
     - role: software/nomad
     - role: software/consul
     - role: software/docker
+    - role: software/node_exporter
 
 ```
 
-Beide de roles Nomad, Consul en Docker voeren de volgende handlers.yml en task.yml
+De Nomad, Consul en Docker roles zijn in de vorige opdrachten al aangehaald. De volgende
+zijn de nieuwe roles, namelijk:
 
-Consul:
-```bash
+Node_exporter (Tasks)
+```ansible
 ---
-- name: Started Consul
+- name: Download node_exporter
+  get_url:
+    url: https://github.com/prometheus/node_exporter/releases/download/v1.0.1/node_exporter-1.0.1.linux-amd64.tar.gz
+    dest: /home/vagrant
+    mode: '0776'
+    
+- name: Extract node_exporter
+  unarchive:
+    src: /home/vagrant/node_exporter-1.0.1.linux-amd64.tar.gz
+    dest: /home/vagrant
+
+- name: Move node_exporter
+  command: mv /home/vagrant/node_exporter-1.0.1.linux-amd64/node_exporter /usr/local/bin/
+
+- name: Node_exporter .service file
+  template: 
+    src: node_exporter.service.sh.j2
+    dest: /etc/systemd/system/node_exporter.service
+
+- name: Start node_exporter
   service:
-    name: consul
+    name: node_exporter
     state: started
 ```
-```bash
----
-- name: Add Consul repository
-  yum_repository:
-    name: consul
-    description: add consul repository
-    baseurl: https://rpm.releases.hashicorp.com/RHEL/$releasever/$basearch/stable
-    gpgkey: https://rpm.releases.hashicorp.com/gpg
 
-- name: Install Consul
-  yum:
-    name: consul
-    state: present
-
-- name: Template Consul file
-  template:
-    src: consul.sh.j2
-    dest: /etc/consul.d/consul.hcl
-  notify: Started Consul
-```
-Nomad:
-```bash
+Node_exporter (Handlers)
+```ansible
 ---
-- name: Started Nomad
+- name: Started Node_exporter
   service:
-    name: nomad
+    name: node_exporter
     state: started
 ```
-```bash
+
+Nomad_jobs (Tasks)
+```ansible
 ---
-- name: Add Nomad repository
-  yum_repository:
-    name: nomad
-    description: add nomad repository
-    baseurl: https://rpm.releases.hashicorp.com/RHEL/$releasever/$basearch/stable
-    gpgkey: https://rpm.releases.hashicorp.com/gpg
-
-- name: Install Nomad
-  yum:
-    name: nomad
-    state: present
-
-- name: Create a directory if it does not exist
+- name: Create a directory for Prometheus.yml
   file:
-    path: /opt/nomad/{{inventory_hostname}}
+    path: /opt/prometheus
     state: directory
     mode: '0755'
 
-- name: Template Nomad file
-  template:
-    src: nomad.sh.j2
-    dest: /etc/nomad.d/nomad.hcl
-  notify: Started Nomad
+- name: Prometheus.yml template
+  template: 
+    src: prometheus.yml.sh.j2
+    dest: /opt/prometheus/prometheus.yml
+
+- name: Prometheus template
+  template: 
+    src: prometheus.hcl.sh.j2
+    dest: /opt/nomad/prometheus.hcl
+  vars:
+    job_name: prometheus
+    job_image: prom/prometheus:latest
+    job_port: 9090
+  notify: Start prometheus
+
+- name: Grafana template
+  template: 
+    src: jobs.hcl.sh.j2
+    dest: /opt/nomad/grafana.hcl
+  vars:
+    job_name: grafana
+    job_image: grafana/grafana:latest
+    job_port: 3000
+  notify: Start grafana
+
+- name: Alertmanager template
+  template: 
+    src: jobs.hcl.sh.j2
+    dest: /opt/nomad/alertmanager.hcl
+  vars:
+    job_name: alertmanager
+    job_image: prom/alertmanager:latest
+    job_port: 9093
+  notify: Start alertmanager
+
+- name: webserver template
+  template: 
+    src: webserver.hcl.j2
+    dest: /opt/nomad/webserver.hcl
+  notify: Start webserver
 ```
-Docker:
-```bash
+
+Nomad_jobs (Handlers)
+```ansible
 ---
-- name: started docker-ce
-  service:
-    name: docker.service
-    state: started
+- name: Start prometheus
+  shell: nomad job run -address=http://{{server_ip}}:4646 /opt/nomad/prometheus.hcl || exit 0
+
+- name: Start grafana
+  shell: nomad job run -address=http://{{server_ip}}:4646 /opt/nomad/grafana.hcl || exit 0
+
+- name: Start alertmanager
+  shell: nomad job run -address=http://{{server_ip}}:4646 /opt/nomad/alertmanager.hcl || exit 0
+
+- name: Start webserver
+  shell: nomad job run -address=http://{{server_ip}}:4646 /opt/nomad/webserver.hcl || exit 0
 ```
-```bash
----
-- name: add docker-ce repository
-  yum_repository:
-    name: docker-ce
-    description: add docker-ce repository
-    baseurl: https://download.docker.com/linux/centos/$releasever/$basearch/stable
-    gpgkey: https://download.docker.com/linux/centos/gpg
 
-- name: install docker-ce
-  yum:
-    name: docker-ce
-    state: present
-  notify: started docker-ce
+Ook hebben we gebruik gemaakt van templates. De templates van toepassing zijn:
+
+Node_exporter (Service)
 ```
-De Nomad en Consul tasks.yml's importeren de volgende Jinja scripten
-
-Consul:
-```bash
-# {{ ansible_managed }}
-
-# Full configuration options can be found at https://www.consul.io/docs/agent/options.html
-
-data_dir = "/opt/consul"
-client_addr = "0.0.0.0"
-ui = true
-server = {{consul_server_enable_disable}}
-bootstrap_expect={{consul_amount_bootstrap}}
-retry_join = ["{{server_ip}}"]
-bind_addr = "{{consul_bind_addr}}"
-node_name = "{{node_name}}"
+[Unit]
+Description=Node Exporter
+After=network.target
+ 
+[Service]
+User=vagrant
+Group=vagrant
+Type=simple
+ExecStart=/usr/local/bin/node_exporter
+ 
+[Install]
+WantedBy=multi-user.target
 ```
-Nomad:
-```bash
-# {{ ansible_managed }}
 
-# Full configuration options can be found at https://www.nomadproject.io/docs/configuration
+Nomad_jobs (Algemene HCL jobs)
+```ansible
+job "{{job_name}}" {
+	datacenters = ["dc1"] 
+	type = "service"
 
-log_level = "DEBUG"
-data_dir = "/opt/nomad/{{inventory_hostname}}"
-bind_addr = "{{nomad_bind_addr}}"
-
-server {
-  enabled = {{nomad_server_enable_disable}}
-  bootstrap_expect = 1
+	group "{{job_name}}" {
+		count = 1
+		network {
+			port "{{job_name}}_port" {
+			to = {{job_port}}
+			static = {{job_port}}
+			}
+		}
+	  task "{{job_name}}" {
+		driver = "docker"
+		config {
+			image = "{{job_image}}"
+			ports = ["{{job_name}}_port"]
+			logging {
+				type = "journald"
+				config {
+					tag = "{{job_name}}"
+				}
+			}
+		}
+		service {
+			name = "{{job_name}}"
+			tags = ["metrics"]
+		}
+	  }
+	}
 }
+```
 
-client {
-  enabled = true
-  servers = ["{{server_ip}}:{{nomad_server_port}}"]
+Nomad_jobs (Prometheus Job HCL)
+```ansible
+job "{{job_name}}" {
+	datacenters = ["dc1"] 
+	type = "service"
+
+	group "{{job_name}}" {
+		count = 1
+		network {
+			port "{{job_name}}_port" {
+			to = {{job_port}}
+			static = {{job_port}}
+			}
+		}
+	  task "{{job_name}}" {
+		driver = "docker"
+		config {
+			image = "{{job_image}}"
+			ports = ["{{job_name}}_port"]
+			logging {
+				type = "journald"
+				config {
+					tag = "{{job_name}}"
+				}
+			}
+        volumes = [
+          "/opt/prometheus/:/etc/prometheus/"
+        ]
+        args = [
+          "--config.file=/etc/prometheus/prometheus.yml",
+          "--storage.tsdb.path=/prometheus",
+          "--web.console.libraries=/usr/share/prometheus/console_libraries",
+          "--web.console.templates=/usr/share/prometheus/consoles",
+          "--web.enable-admin-api"
+        ]
+		}
+		service {
+			name = "{{job_name}}"
+		}
+	  }
+	}
+}
+```
+
+Nomad_jobs (Prometheus.yml)
+```
+global:                                       
+  scrape_interval:     5s                     
+  evaluation_interval: 5s                     
+                                              
+scrape_configs:                               
+                                              
+  - job_name: 'nomad_metrics'                 
+                                              
+    consul_sd_configs:                        
+    - server: '192.168.2.15:8500'             
+      services: ['nomad-client', 'nomad']     
+                                              
+    relabel_configs:                          
+    - source_labels: ['__meta_consul_tags']   
+      regex: '(.*)http(.*)'                   
+      action: keep                            
+                                              
+    scrape_interval: 5s                       
+    metrics_path: /v1/metrics                 
+    params:                                   
+      format: ['prometheus']                  
+  - job_name: 'node_exporter'                 
+    consul_sd_configs:                        
+      - server: '192.168.2.15:8500'           
+        services: ['nomad-client']            
+    relabel_configs:                          
+      - source_labels: [__meta_consul_tags]   
+        regex: '(.*)http(.*)'                 
+        action: keep                          
+      - source_labels: [__meta_consul_service]
+        target_label: job                     
+      - source_labels: [__address__]          
+        action: replace                       
+        regex: ([^:]+):.*                     
+        replacement: $1:9100                  
+        target_label: __address__
+  - job_name: 'webserver'
+
+    consul_sd_configs:
+    - server: '192.168.2.15:8500'
+      services: ['webserver']
+
+    metrics_path: /metrics
+```
+
+Nomad_jobs (Webserver voor Prometheus metrics job)
+```ansible
+job "webserver" {
+  datacenters = ["dc1"]
+
+  group "webserver" {
+    task "server" {
+      driver = "docker"
+      config {
+        image = "hashicorp/demo-prometheus-instrumentation:latest"
+      }
+
+      resources {
+        cpu = 500
+        memory = 256
+        network {
+          mbits = 10
+          port  "http"{}
+        }
+      }
+
+      service {
+        name = "webserver"
+        port = "http"
+
+        tags = [
+          "testweb",
+          "urlprefix-/webserver strip=/webserver",
+        ]
+
+        check {
+          type     = "http"
+          path     = "/"
+          interval = "2s"
+          timeout  = "2s"
+        }
+      }
+    }
+  }
 }
 ```
 
 ## Verdeling van taken
-We hebben beide vanalles gedaan en ook delen samen gedaan. Er zijn geen specifiek delen gedaan door iemand specifiek. 
-Beide hebben we aan alles wat gewerkt.
+We hebben voor zo goed als alles samengewerkt.
