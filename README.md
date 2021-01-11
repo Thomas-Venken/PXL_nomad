@@ -34,7 +34,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     server.vm.hostname = "server"
 	  server.vm.network "private_network", ip: "192.168.2.15"
 	  server.vm.network "forwarded_port", guest: 4646, host: 4646, auto_correct: true, host_ip: "127.0.0.1"
-    server.vm.network "forwarded_port", guest: 8500, host: 8500, auto_correct: true, host_ip: "127.0.0.1"
+	  server.vm.network "forwarded_port", guest: 8500, host: 8500, auto_correct: true, host_ip: "127.0.0.1"
+    server.vm.network "forwarded_port", guest: 9090, host: 9090, auto_correct: true, host_ip: "127.0.0.1"
 
     server.vm.provision "ansible_local" do |ansible|
       ansible.config_file = "ansible/ansible.cfg"
@@ -87,7 +88,10 @@ Per VM worden de volgende roles geinstalleerd:
 * Docker
 * Nomad
 * Consul
+* Node_exporter
+* Nomad_jobs
 
+Voor de server zijn deze geinstalleerd
 ```ansible
 ---
 - name: playbook for server vm
@@ -98,8 +102,11 @@ Per VM worden de volgende roles geinstalleerd:
     - role: software/nomad
     - role: software/consul
     - role: software/docker
-  
+    - role: software/node_exporter
+    - role: software/nomad_jobs
 ```
+
+Voor de clients zijn deze geinstalleerd
 ```ansible
 ---
 - name: playbook for client vm
@@ -110,134 +117,8 @@ Per VM worden de volgende roles geinstalleerd:
     - role: software/nomad
     - role: software/consul
     - role: software/docker
+    - role: software/node_exporter
 
-```
-
-Beide de roles Nomad, Consul en Docker voeren de volgende handlers.yml en task.yml
-
-Consul:
-```bash
----
-- name: Started Consul
-  service:
-    name: consul
-    state: started
-```
-```bash
----
-- name: Add Consul repository
-  yum_repository:
-    name: consul
-    description: add consul repository
-    baseurl: https://rpm.releases.hashicorp.com/RHEL/$releasever/$basearch/stable
-    gpgkey: https://rpm.releases.hashicorp.com/gpg
-
-- name: Install Consul
-  yum:
-    name: consul
-    state: present
-
-- name: Template Consul file
-  template:
-    src: consul.sh.j2
-    dest: /etc/consul.d/consul.hcl
-  notify: Started Consul
-```
-Nomad:
-```bash
----
-- name: Started Nomad
-  service:
-    name: nomad
-    state: started
-```
-```bash
----
-- name: Add Nomad repository
-  yum_repository:
-    name: nomad
-    description: add nomad repository
-    baseurl: https://rpm.releases.hashicorp.com/RHEL/$releasever/$basearch/stable
-    gpgkey: https://rpm.releases.hashicorp.com/gpg
-
-- name: Install Nomad
-  yum:
-    name: nomad
-    state: present
-
-- name: Create a directory if it does not exist
-  file:
-    path: /opt/nomad/{{inventory_hostname}}
-    state: directory
-    mode: '0755'
-
-- name: Template Nomad file
-  template:
-    src: nomad.sh.j2
-    dest: /etc/nomad.d/nomad.hcl
-  notify: Started Nomad
-```
-Docker:
-```bash
----
-- name: started docker-ce
-  service:
-    name: docker.service
-    state: started
-```
-```bash
----
-- name: add docker-ce repository
-  yum_repository:
-    name: docker-ce
-    description: add docker-ce repository
-    baseurl: https://download.docker.com/linux/centos/$releasever/$basearch/stable
-    gpgkey: https://download.docker.com/linux/centos/gpg
-
-- name: install docker-ce
-  yum:
-    name: docker-ce
-    state: present
-  notify: started docker-ce
-```
-De Nomad en Consul tasks.yml's importeren de volgende Jinja scripten
-
-Consul:
-```bash
-# {{ ansible_managed }}
-
-# Full configuration options can be found at https://www.consul.io/docs/agent/options.html
-
-data_dir = "/opt/consul"
-client_addr = "0.0.0.0"
-ui = true
-server = {{consul_server_enable_disable}}
-bootstrap_expect={{consul_amount_bootstrap}}
-retry_join = ["{{server_ip}}"]
-bind_addr = "{{consul_bind_addr}}"
-node_name = "{{node_name}}"
-```
-Nomad:
-```bash
-# {{ ansible_managed }}
-
-# Full configuration options can be found at https://www.nomadproject.io/docs/configuration
-
-log_level = "DEBUG"
-data_dir = "/opt/nomad/{{inventory_hostname}}"
-bind_addr = "{{nomad_bind_addr}}"
-
-server {
-  enabled = {{nomad_server_enable_disable}}
-  bootstrap_expect = 1
-}
-
-client {
-  enabled = true
-  servers = ["{{server_ip}}:{{nomad_server_port}}"]
-}
 ```
 
 ## Verdeling van taken
-We hebben beide vanalles gedaan en ook delen samen gedaan. Er zijn geen specifiek delen gedaan door iemand specifiek. 
-Beide hebben we aan alles wat gewerkt.
