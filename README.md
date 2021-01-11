@@ -88,8 +88,8 @@ Per VM worden de volgende roles geinstalleerd:
 * Docker
 * Nomad
 * Consul
-* Node_exporter
-* Nomad_jobs
+* Node_exporter (Clients)
+* Nomad_jobs (Server)
 
 Voor de server zijn deze geinstalleerd
 ```ansible
