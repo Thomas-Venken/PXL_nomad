@@ -21,9 +21,6 @@ job "{{job_name}}" {
 					tag = "{{job_name}}"
 				}
 			}
-        volumes = [
-          "/opt/alertmanager/:/etc/alertmanager/"
-        ]
 		}
 		service {
 			name = "{{job_name}}"

@@ -1,7 +1,22 @@
 global:                                       
   scrape_interval:     5s                     
-  evaluation_interval: 5s                     
-                                              
+  evaluation_interval: 5s   
+                  
+alerting:
+  alertmanagers:
+    - consul_sd_configs:
+      - server: '192.168.2.15:8500'
+        services: ['alertmanager']
+    - relabel_configs: 
+        - source_labels: [__address__]          
+          action: replace                       
+          regex: ([^:]+):.*                     
+          replacement: $1:9093              
+          target_label: __address__
+
+rule_files:
+ - rules.yml
+
 scrape_configs:                               
                                               
   - job_name: 'nomad_metrics'                 
@@ -37,33 +52,26 @@ scrape_configs:
         target_label: __address__
 
   - job_name: 'webserver'
-
     consul_sd_configs:
     - server: '192.168.2.15:8500'
       services: ['webserver']
-
     metrics_path: /metrics
   
   - job_name: 'alertmanager'
-
     consul_sd_configs:
-    - server: '192.168.2.15:8500'
-      services: ['alertmanager']
-
+      - server: '192.168.2.15:8500'
+        services: ['alertmanager']
     relabel_configs:
-    - source_labels: [__meta_consul_service]
-      target_label: job
+      - source_labels: [__meta_consul_service]
+        target_label: job
+      - source_labels: [__address__]          
+        action: replace                       
+        regex: ([^:]+):.*                     
+        replacement: $1:9093              
+        target_label: __address__
 
     scrape_interval: 5s
     metrics_path: /metrics
     params:
       format: ['prometheus']
 
-alerting:
- alertmanagers:
- - consul_sd_configs:
-   - server: '192.168.2.15:8500'
-     services: ['alertmanager']
-
-rule_files:
- - rules.yml           
